@@ -61,32 +61,25 @@ body {
 
 .app-container {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
     max-width: 1400px;
     margin: 0 auto;
 }
 
-/* Sidebar */
-.sidebar {
-    width: 320px;
-    padding: 3rem 2rem;
-    background: var(--panel-bg);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-}
-
-.brand-row {
+.top-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .brand {
@@ -96,45 +89,28 @@ body {
 }
 
 .logo {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: linear-gradient(135deg, var(--accent-primary) 0%, #10b981 100%);
-    border-radius: 6px;
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
     font-family: var(--font-display);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--text-primary);
-}
-
-
-
-.subtitle {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-.security-badge {
-    margin-top: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
 }
 
 /* Main Content */
 .content {
     flex: 1;
     padding: 3rem 4rem;
-    max-width: 900px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .list-header {
@@ -1086,17 +1062,6 @@ select:focus {
 @media (max-width: 900px) {
     .conferences-grid {
         grid-template-columns: minmax(0, 1fr);
-    }
-    .app-container {
-        flex-direction: column;
-    }
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 2rem;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
     }
     .content {
         padding: 2rem;
