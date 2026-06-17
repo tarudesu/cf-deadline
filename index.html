@@ -8,16 +8,34 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app-container">
         <!-- Sidebar / Header Area -->
         <aside class="sidebar">
-            <div class="brand">
-                <div class="logo"></div>
-                <h1>cf-deadline</h1>
+            <div class="brand-row">
+                <div class="brand">
+                    <div class="logo"></div>
+                    <h1>cf-deadline</h1>
+                </div>
+                <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Theme">
+                    <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
             </div>
             <p class="subtitle">Your private tracker for academic and professional conferences.</p>
             
@@ -77,34 +95,133 @@
                     </svg>
                 </button>
             </div>
-            <form id="conferenceForm">
-                <div class="form-group">
-                    <label for="confName">Conference Title</label>
-                    <input type="text" id="confName" placeholder="e.g., Computer Vision and Pattern Recognition" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="confAbbr">Abbreviation</label>
-                        <input type="text" id="confAbbr" placeholder="e.g., CVPR 27" required>
+            
+            <div class="modal-tabs">
+                <button type="button" id="tabManual" class="modal-tab active">Manual Form</button>
+                <button type="button" id="tabMarkdown" class="modal-tab">Import from Markdown</button>
+            </div>
+
+            <!-- Manual Form Section -->
+            <div id="manualFormSection">
+                <form id="conferenceForm">
+                    <div class="form-row">
+                        <div class="form-group flex-2">
+                            <label for="confName">Conference Title</label>
+                            <input type="text" id="confName" placeholder="e.g., Computer Vision and Pattern Recognition" required>
+                        </div>
+                        <div class="form-group flex-1">
+                            <label for="confRanking">Ranking</label>
+                            <input type="text" id="confRanking" placeholder="e.g., Core A*, CCF A">
+                        </div>
                     </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="confAbbr">Abbreviation</label>
+                            <input type="text" id="confAbbr" placeholder="e.g., CVPR 2027" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confLocation">Location</label>
+                            <input type="text" id="confLocation" placeholder="e.g., Seattle, WA or Online">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="confEventDate">Conference Date & Time</label>
+                            <input type="text" id="confEventDate" placeholder="e.g., June 18-22, 2027">
+                        </div>
+                        <div class="form-group">
+                            <label for="confUrl">Website URL</label>
+                            <input type="url" id="confUrl" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="confAbstractDate">Abstract Deadline (Optional)</label>
+                            <input type="datetime-local" id="confAbstractDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="confDate">Submission Deadline</label>
+                            <input type="datetime-local" id="confDate" required>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="confLocation">Location</label>
-                        <input type="text" id="confLocation" placeholder="e.g., Seattle, WA">
+                        <label for="confTimezone">Deadline Timezone</label>
+                        <select id="confTimezone" required>
+                            <option value="AoE" selected>AoE (Anywhere on Earth - UTC-12)</option>
+                            <option value="UTC">UTC (Coordinated Universal Time)</option>
+                            <option value="Local">Local Browser Time</option>
+                            <option value="+00:00">UTC+00:00</option>
+                            <option value="+01:00">UTC+01:00</option>
+                            <option value="+02:00">UTC+02:00</option>
+                            <option value="+03:00">UTC+03:00</option>
+                            <option value="+04:00">UTC+04:00</option>
+                            <option value="+05:00">UTC+05:00</option>
+                            <option value="+05:30">UTC+05:30 (IST)</option>
+                            <option value="+06:00">UTC+06:00</option>
+                            <option value="+07:00">UTC+07:00 (ICT)</option>
+                            <option value="+08:00">UTC+08:00 (SGT/CST)</option>
+                            <option value="+09:00">UTC+09:00 (JST)</option>
+                            <option value="+10:00">UTC+10:00</option>
+                            <option value="+11:00">UTC+11:00</option>
+                            <option value="+12:00">UTC+12:00</option>
+                            <option value="-01:00">UTC-01:00</option>
+                            <option value="-02:00">UTC-02:00</option>
+                            <option value="-03:00">UTC-03:00 (BRT)</option>
+                            <option value="-04:00">UTC-04:00 (AST/EDT)</option>
+                            <option value="-05:00">UTC-05:00 (EST/CDT)</option>
+                            <option value="-06:00">UTC-06:00 (CST/MDT)</option>
+                            <option value="-07:00">UTC-07:00 (MST/PDT)</option>
+                            <option value="-08:00">UTC-08:00 (PST)</option>
+                            <option value="-09:00">UTC-09:00</option>
+                            <option value="-10:00">UTC-10:00 (HST)</option>
+                            <option value="-11:00">UTC-11:00</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" id="cancelBtn" class="secondary-btn">Cancel</button>
+                        <button type="submit" class="primary-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Markdown Import Section -->
+            <div id="markdownImportSection" class="hidden">
+                <div class="markdown-instructions">
+                    <p>Use the prompt below with an LLM to search for the conference details. Then, paste the markdown result below to automatically populate the form fields.</p>
+                    <div class="prompt-box">
+                        <pre id="promptTemplate">Extract details for [Conference Name] into this Markdown format:
+- Title: 
+- Abbreviation: 
+- Location: 
+- Conference Date: 
+- Abstract Deadline: YYYY-MM-DD HH:MM (Optional)
+- Submission Deadline: YYYY-MM-DD HH:MM
+- Timezone: AoE / UTC / Offset e.g. +07:00
+- Website: 
+- Ranking: </pre>
+                        <button type="button" id="copyPromptBtn" class="icon-btn-text">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy Prompt
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="confDate">Deadline Date & Time</label>
-                    <input type="datetime-local" id="confDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="confUrl">Website URL (Optional)</label>
-                    <input type="url" id="confUrl" placeholder="https://...">
+                    <label for="markdownInput">Paste Markdown Result Here</label>
+                    <textarea id="markdownInput" placeholder="- Title: ...&#10;- Abbreviation: ..."></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" id="cancelBtn" class="secondary-btn">Cancel</button>
-                    <button type="submit" class="primary-btn">Save</button>
+                    <button type="button" id="cancelMarkdownBtn" class="secondary-btn">Cancel</button>
+                    <button type="button" id="parseMarkdownBtn" class="primary-btn">Parse & Populate</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
