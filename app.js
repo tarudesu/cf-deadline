@@ -578,10 +578,7 @@ function renderConferences() {
         const rankingClass = isSpecialRank ? 'ranking-badge special' : 'ranking-badge';
         const rankingHTML = conf.ranking ? `
             <span class="${rankingClass}">
-                ${isCompact ? '' : 'Ranking: '}${conf.ranking} 
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
+                Ranking: ${conf.ranking} 
             </span>
         ` : '';
 
@@ -654,7 +651,7 @@ function renderConferences() {
             </div>
             <div class="item-right">
                 <div class="deadline-label">
-                    Deadline <span class="tz-label">(${tzLabel})</span>
+                    Submission Deadline <span class="tz-label">(${tzLabel})</span>
                 </div>
                 <div class="timer">
                     <div class="time-block">
@@ -674,7 +671,10 @@ function renderConferences() {
                         <span class="time-label">s</span>
                     </div>
                 </div>
-                <div class="deadline-date">${formatNominalDate(conf.deadline)}</div>
+                <div class="deadline-date">
+                    ${formatNominalDate(conf.deadline)}
+                    <span class="passed-flag hidden" style="color: var(--accent-danger); font-weight: 700; margin-left: 0.25rem;">(Passed)</span>
+                </div>
                 <div class="item-actions">
                     ${urlHTML}
                     ${editHTML}
@@ -744,6 +744,8 @@ function updateAllCountdowns() {
             return;
         }
 
+        const passedFlag = item.querySelector('.passed-flag');
+
         if (distance < 0) {
             daysEl.textContent = '00';
             hoursEl.textContent = '00';
@@ -751,7 +753,9 @@ function updateAllCountdowns() {
             secsEl.textContent = '00';
             item.classList.remove('danger', 'warning', 'success');
             item.classList.add('expired');
+            if (passedFlag) passedFlag.classList.remove('hidden');
         } else {
+            if (passedFlag) passedFlag.classList.add('hidden');
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
