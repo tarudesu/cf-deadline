@@ -477,3 +477,18 @@ input[type="datetime-local"] {
         opacity: 1;
     }
 }
+
+.hidden {
+    display: none !important;
+}
+
+#loginBtn {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    transition: var(--transition);
+}
+
+#loginBtn:hover {
+    color: var(--text-primary);
+}
