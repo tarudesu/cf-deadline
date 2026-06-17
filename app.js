@@ -66,12 +66,12 @@ onAuthStateChanged(auth, async (user) => {
         // We can get the GitHub username from user.reloadUserInfo.screenName
         const githubUsername = user.reloadUserInfo?.screenName || user.displayName;
         
-        // Optionally enforce admin username matching:
-        // if (githubUsername && githubUsername.toLowerCase() !== ADMIN_GITHUB_USERNAME.toLowerCase()) {
-        //     alert("You are not authorized as admin.");
-        //     await signOut(auth);
-        //     return;
-        // }
+        // Enforce admin username matching:
+        if (githubUsername && githubUsername.toLowerCase() !== ADMIN_GITHUB_USERNAME.toLowerCase()) {
+            alert("You are not authorized as admin.");
+            await signOut(auth);
+            return;
+        }
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
