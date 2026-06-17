@@ -272,6 +272,7 @@ function parseMarkdown(text) {
         if (extract(trimmed, 'Title') !== null) data.name = extract(trimmed, 'Title');
         else if (extract(trimmed, 'Abbreviation') !== null) data.abbr = extract(trimmed, 'Abbreviation');
         else if (extract(trimmed, 'Location') !== null) data.location = extract(trimmed, 'Location');
+        else if (extract(trimmed, 'Mode') !== null) data.mode = extract(trimmed, 'Mode');
         else if (extract(trimmed, 'Conference Date') !== null) data.eventDate = extract(trimmed, 'Conference Date');
         else if (extract(trimmed, 'Abstract Deadline') !== null) data.abstractDeadline = extract(trimmed, 'Abstract Deadline');
         else if (extract(trimmed, 'Submission Deadline') !== null) data.deadline = extract(trimmed, 'Submission Deadline');
@@ -296,6 +297,15 @@ parseMarkdownBtn.addEventListener('click', () => {
     if (data.name) document.getElementById('confName').value = data.name;
     if (data.abbr) document.getElementById('confAbbr').value = data.abbr;
     if (data.location) document.getElementById('confLocation').value = data.location;
+    if (data.mode) {
+        const m = data.mode.toLowerCase();
+        if (m.includes('in-person') || m.includes('in person')) document.getElementById('confMode').value = 'In-person';
+        else if (m.includes('hybrid')) document.getElementById('confMode').value = 'Hybrid';
+        else if (m.includes('virtual') || m.includes('online')) document.getElementById('confMode').value = 'Virtual';
+        else document.getElementById('confMode').value = 'TBD';
+    } else {
+        document.getElementById('confMode').value = 'In-person';
+    }
     if (data.eventDate) document.getElementById('confEventDate').value = data.eventDate;
     if (data.url) document.getElementById('confUrl').value = data.url;
     if (data.ranking) document.getElementById('confRanking').value = data.ranking;
@@ -374,6 +384,7 @@ conferenceForm.addEventListener('submit', async (e) => {
     const ranking = document.getElementById('confRanking').value.trim();
     const abbr = document.getElementById('confAbbr').value.trim();
     const location = document.getElementById('confLocation').value.trim();
+    const mode = document.getElementById('confMode').value;
     const eventDate = document.getElementById('confEventDate').value.trim();
     const url = document.getElementById('confUrl').value.trim();
     const abstractDeadline = document.getElementById('confAbstractDate').value;
@@ -385,6 +396,7 @@ conferenceForm.addEventListener('submit', async (e) => {
         ranking,
         abbr,
         location,
+        mode,
         eventDate,
         url,
         abstractDeadline,
@@ -448,6 +460,7 @@ async function editConference(id) {
     document.getElementById('confRanking').value = conf.ranking || '';
     document.getElementById('confAbbr').value = conf.abbr || '';
     document.getElementById('confLocation').value = conf.location || '';
+    document.getElementById('confMode').value = conf.mode || 'In-person';
     document.getElementById('confEventDate').value = conf.eventDate || '';
     document.getElementById('confUrl').value = conf.url || '';
     document.getElementById('confAbstractDate').value = conf.abstractDeadline || '';
@@ -592,13 +605,16 @@ function renderConferences() {
             </div>
         `;
 
-        const locationHTML = conf.location ? `
+        const modeText = conf.mode ? (conf.location ? ` (${conf.mode})` : `Mode: <strong>${conf.mode}</strong>`) : '';
+        const hasLocOrMode = conf.location || conf.mode;
+        
+        const locationHTML = hasLocOrMode ? `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <span>Loc: <strong>${conf.location}</strong></span>
+                <span>${conf.location ? `Loc: <strong>${conf.location}</strong>` : ''}${modeText}</span>
             </div>
         ` : '';
 
