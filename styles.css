@@ -871,7 +871,7 @@ select:focus {
 
 
 /* Abstract Countdown UI */
-.abstract-timer {
+.abstract-timer, .sub-deadline-timer {
     white-space: nowrap;
     font-family: var(--font-mono);
     color: var(--text-tertiary);
