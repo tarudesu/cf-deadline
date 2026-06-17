@@ -792,3 +792,39 @@ select:focus {
     gap: 0.5rem;
 }
 
+.auth-modal {
+    max-width: 380px !important;
+    text-align: center;
+}
+
+.auth-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.auth-modal-content p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.lock-icon {
+    color: var(--accent-primary);
+    background: rgba(37, 99, 235, 0.05);
+    padding: 1.2rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(37, 99, 235, 0.12);
+    margin-bottom: 0.5rem;
+}
+
+.dark-theme .lock-icon {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+

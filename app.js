@@ -54,6 +54,9 @@ const parseMarkdownBtn = document.getElementById('parseMarkdownBtn');
 // Auth Elements
 const adminControls = document.getElementById('adminControls');
 const logoutBtn = document.getElementById('logoutBtn');
+const adminLoginModal = document.getElementById('adminLoginModal');
+const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+const authLoginBtn = document.getElementById('authLoginBtn');
 
 // State
 let conferences = [];
@@ -72,15 +75,32 @@ logoutBtn.addEventListener('click', async () => {
     }
 });
 
-// Trigger Login Flow
-async function triggerLogin() {
+// Close Auth Modal
+closeAuthModalBtn.addEventListener('click', () => {
+    adminLoginModal.classList.add('hidden');
+    document.body.style.overflow = '';
+});
+
+// Auth Login trigger via direct user click (avoids browser popup blocker)
+authLoginBtn.addEventListener('click', async () => {
     try {
+        const originalText = authLoginBtn.innerHTML;
+        authLoginBtn.textContent = "Authenticating...";
+        authLoginBtn.disabled = true;
         await signInWithPopup(auth, provider);
     } catch (error) {
         console.error("Login error", error);
         alert("Failed to login with GitHub: " + error.message);
+    } finally {
+        authLoginBtn.disabled = false;
+        authLoginBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            Authorize with GitHub
+        `;
     }
-}
+});
 
 // Check for login query parameter
 const urlParams = new URLSearchParams(window.location.search);
@@ -89,8 +109,9 @@ if (urlParams.has('login') && urlParams.get('login') === 'true') {
     const newUrl = window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
     
-    // Trigger login
-    triggerLogin();
+    // Show the auth modal overlay to prompt the user to click the button
+    adminLoginModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -118,6 +139,10 @@ onAuthStateChanged(auth, async (user) => {
             await signOut(auth);
             return;
         }
+
+        // Close admin login modal if open
+        adminLoginModal.classList.add('hidden');
+        document.body.style.overflow = '';
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
