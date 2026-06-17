@@ -553,6 +553,14 @@ function parseEventDate(dateString) {
     return new Date(year, monthIdx, day).getTime();
 }
 
+let isMobileLayout = window.innerWidth <= 900;
+window.addEventListener('resize', () => {
+    if ((window.innerWidth <= 900) !== isMobileLayout) {
+        isMobileLayout = window.innerWidth <= 900;
+        renderConferences();
+    }
+});
+
 function renderConferences() {
     const searchTerm = (searchInput.value || '').toLowerCase();
     const selectedRank = rankFilter.value;
@@ -805,7 +813,7 @@ function renderConferences() {
         const isFuture = currentTab === 'upcoming-events' ? eventUtc >= now : deadlineUtc >= now;
         
         if (isFuture || currentTab === 'all') {
-            const heroEl = createConferenceElement(topItem, false, 0);
+            const heroEl = createConferenceElement(topItem, isMobileLayout, 0);
             conferencesList.appendChild(heroEl);
             listToRender = listToRender.slice(1);
             hasHero = true;
