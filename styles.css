@@ -78,10 +78,26 @@ body {
     gap: 1.5rem;
 }
 
-.nav-controls {
+.floating-admin-controls {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.floating-admin-controls .primary-btn,
+.floating-admin-controls .secondary-btn {
+    width: 100%;
 }
 
 .brand {
