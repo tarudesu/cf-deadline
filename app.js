@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -50,6 +50,7 @@ const authStatusMessage = document.getElementById('authStatusMessage');
 
 // State
 let conferences = [];
+let editingId = null;
 let isAdmin = false;
 let countdownInterval = null;
 let currentTab = 'upcoming'; // upcoming, past, all
@@ -175,6 +176,8 @@ const closeModal = () => {
     modalOverlay.classList.add('hidden');
     document.body.style.overflow = '';
     conferenceForm.reset();
+    editingId = null;
+    document.getElementById('saveConferenceBtn').textContent = 'Save';
     if (markdownInput) markdownInput.value = '';
     if (tabManual) tabManual.click();
 };
@@ -391,7 +394,11 @@ conferenceForm.addEventListener('submit', async (e) => {
     };
 
     try {
-        await addDoc(collection(db, "conferences"), newConf);
+        if (editingId) {
+            await updateDoc(doc(db, "conferences", editingId), newConf);
+        } else {
+            await addDoc(collection(db, "conferences"), newConf);
+        }
         closeModal();
     } catch (e) {
         console.error("Error adding document: ", e);
@@ -428,8 +435,32 @@ async function deleteConference(id) {
         }
     }
 }
-// Attach to window so inline onclick handlers can reach it
 window.deleteConference = deleteConference;
+
+async function editConference(id) {
+    if (!isAdmin) return;
+    const conf = conferences.find(c => c.id === id);
+    if (!conf) return;
+
+    editingId = id;
+    
+    document.getElementById('confName').value = conf.name || '';
+    document.getElementById('confRanking').value = conf.ranking || '';
+    document.getElementById('confAbbr').value = conf.abbr || '';
+    document.getElementById('confLocation').value = conf.location || '';
+    document.getElementById('confEventDate').value = conf.eventDate || '';
+    document.getElementById('confUrl').value = conf.url || '';
+    document.getElementById('confAbstractDate').value = conf.abstractDeadline || '';
+    document.getElementById('confDate').value = conf.deadline || '';
+    document.getElementById('confTimezone').value = conf.timezone || 'AoE';
+
+    document.getElementById('saveConferenceBtn').textContent = 'Update Deadline';
+
+    modalOverlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    tabManual.click();
+}
+window.editConference = editConference;
 
 function updateRankingFilterOptions() {
     const currentVal = rankFilter.value;
@@ -597,6 +628,16 @@ function renderConferences() {
         ` : '';
 
         const deleteBtnClass = isAdmin ? "icon-btn delete" : "icon-btn delete hidden";
+        const editBtnClass = isAdmin ? "icon-btn edit" : "icon-btn edit hidden";
+
+        const editHTML = `
+            <button class="${editBtnClass}" onclick="editConference('${conf.id}')" title="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+        `;
 
         item.innerHTML = `
             <div class="item-left">
@@ -636,6 +677,7 @@ function renderConferences() {
                 <div class="deadline-date">${formatNominalDate(conf.deadline)}</div>
                 <div class="item-actions">
                     ${urlHTML}
+                    ${editHTML}
                     <button class="${deleteBtnClass}" onclick="deleteConference('${conf.id}')" title="Remove">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -707,7 +749,8 @@ function updateAllCountdowns() {
             hoursEl.textContent = '00';
             minsEl.textContent = '00';
             secsEl.textContent = '00';
-            item.className = 'list-item expired';
+            item.classList.remove('danger', 'warning', 'success');
+            item.classList.add('expired');
         } else {
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -719,7 +762,7 @@ function updateAllCountdowns() {
             minsEl.textContent = minutes.toString().padStart(2, '0');
             secsEl.textContent = seconds.toString().padStart(2, '0');
 
-            item.className = 'list-item';
+            item.classList.remove('expired', 'danger', 'warning', 'success');
             if (days < 3) {
                 item.classList.add('danger');
             } else if (days < 14) {
