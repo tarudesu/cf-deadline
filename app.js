@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyState = document.getElementById('emptyState');
 
     // State
-    let conferences = JSON.parse(localStorage.getItem('cf-time-data')) || [];
+    let conferences = JSON.parse(localStorage.getItem('cf-deadline-data')) || [];
 
     // Initialize
     renderConferences();
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveToLocalStorage() {
-        localStorage.setItem('cf-time-data', JSON.stringify(conferences));
+        localStorage.setItem('cf-deadline-data', JSON.stringify(conferences));
     }
 
     function renderConferences() {
