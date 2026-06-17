@@ -144,6 +144,19 @@ h1 {
     margin-bottom: 1.5rem;
 }
 
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 3rem 4rem 1rem 4rem;
+    margin: -3rem -4rem 2rem -4rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
 .list-header h2 {
     font-family: var(--font-display);
     font-size: 2.25rem;
@@ -200,7 +213,7 @@ h1 {
 .filters-bar {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 0;
     flex-wrap: wrap;
 }
 

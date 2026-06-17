@@ -669,7 +669,7 @@ function renderConferences() {
             </div>
         ` : '';
 
-        const eventDateHTML = conf.eventDate ? `
+        let eventDateHTML = conf.eventDate ? `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -680,6 +680,26 @@ function renderConferences() {
                 <span>Date: <strong>${conf.eventDate}</strong></span>
             </div>
         ` : '';
+
+        let mainTimerLabel = 'Submission Deadline';
+
+        if (currentTab === 'upcoming-events') {
+            mainTimerLabel = 'Conference Date';
+            const dlUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
+            const deadlinePassed = dlUtc < now;
+            const passedHtml = deadlinePassed ? ` <span style="color: var(--accent-danger); font-weight:700;">(Passed)</span>` : '';
+            eventDateHTML = `
+            <div class="meta-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Sub. Deadline: <strong>${formatNominalDate(conf.deadline)}</strong>${passedHtml}</span>
+            </div>
+            `;
+        }
 
         const urlHTML = conf.url ? `
             <a href="${conf.url}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
@@ -718,7 +738,7 @@ function renderConferences() {
             </div>
             <div class="item-right">
                 <div class="deadline-label">
-                    Submission Deadline <span class="tz-label">(${tzLabel})</span>
+                    ${mainTimerLabel} <span class="tz-label">(${tzLabel})</span>
                 </div>
                 <div class="timer">
                     <div class="time-block">
