@@ -602,8 +602,18 @@ function renderConferences() {
         item.className = isCompact ? 'list-item compact' : 'list-item';
         item.dataset.id = conf.id;
         
-        const deadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
-        item.dataset.deadlineUtc = deadlineUtc;
+        let targetUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
+        let displayDateStr = formatNominalDate(conf.deadline);
+        
+        if (currentTab === 'upcoming-events') {
+            let eUtc = parseEventDate(conf.eventDate);
+            if (!isNaN(eUtc)) {
+                targetUtc = eUtc;
+                displayDateStr = conf.eventDate;
+            }
+        }
+        
+        item.dataset.deadlineUtc = targetUtc;
         
         if (conf.abstractDeadline) {
             const abstractUtc = getUtcTimestamp(conf.abstractDeadline, conf.timezone || 'AoE');
@@ -716,7 +726,7 @@ function renderConferences() {
                     </div>
                 </div>
                 <div class="deadline-date">
-                    ${formatNominalDate(conf.deadline)}
+                    ${displayDateStr}
                     <span class="passed-flag hidden" style="color: var(--accent-danger); font-weight: 700; margin-left: 0.25rem;">(Passed)</span>
                 </div>
                 <div class="item-actions">
