@@ -71,9 +71,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    flex-wrap: wrap;
+    gap: 1.5rem;
 }
 
 .nav-controls {
@@ -863,8 +865,6 @@ select:focus {
 }
 
 .logout-btn {
-    width: 100%;
-    margin-top: 0.5rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -932,10 +932,8 @@ select:focus {
 /* Tabs */
 .main-tabs {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
+    gap: 1.5rem;
+    margin-bottom: 0;
 }
 
 .main-tab {

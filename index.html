@@ -30,33 +30,28 @@
                     <div class="brand">
                         <div class="logo"></div>
                         <h1>cf-deadline</h1>
+                        <span class="count-badge" id="totalCount" style="margin-left: 0.5rem; font-size: 0.75rem; padding: 0.15rem 0.5rem;">0</span>
                     </div>
+                    
+                    <div class="main-tabs">
+                        <button type="button" class="main-tab active" data-tab="upcoming-deadlines">Deadlines</button>
+                        <button type="button" class="main-tab" data-tab="upcoming-events">Events</button>
+                        <button type="button" class="main-tab" data-tab="past">Past</button>
+                        <button type="button" class="main-tab" data-tab="all">All</button>
+                    </div>
+
                     <div id="adminControls" class="nav-controls hidden">
                         <button id="addConferenceBtn" class="primary-btn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            New Deadline
+                            New
                         </button>
                         <button id="logoutBtn" class="secondary-btn logout-btn">
                             Logout
                         </button>
                     </div>
                 </div>
-
-                <div class="list-header">
-                <h2>Conference Deadlines</h2>
-                <div class="view-controls">
-                    <span class="count-badge" id="totalCount">0</span>
-                </div>
-            </div>
-
-            <div class="main-tabs">
-                <button type="button" class="main-tab active" data-tab="upcoming-deadlines">Deadlines</button>
-                <button type="button" class="main-tab" data-tab="upcoming-events">Events</button>
-                <button type="button" class="main-tab" data-tab="past">Past</button>
-                <button type="button" class="main-tab" data-tab="all">All</button>
-            </div>
 
             <div class="filters-bar">
                 <div class="search-box">
