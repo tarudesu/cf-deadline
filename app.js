@@ -506,22 +506,35 @@ mainTabs.forEach(tab => {
 
 function parseEventDate(dateString) {
     if (!dateString) return NaN;
+    
+    let cleanStr = dateString.replace(/-(\d{1,2})\b/g, ''); // strip ranges like "18-22" -> "18"
+    cleanStr = cleanStr.replace(/\b(\d+)(st|nd|rd|th)\b/gi, '$1');
+    let ts = Date.parse(cleanStr);
+    if (!isNaN(ts)) return ts;
+    
     const yearMatch = dateString.match(/\b(20\d{2})\b/);
-    if (!yearMatch) return NaN;
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-                    "January", "February", "March", "April", "June", "July", "August", "September", "October", "November", "December"];
+    const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear(); // default to current year
+    
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     let monthIdx = -1;
     for (let i = 0; i < 12; i++) {
-        if (dateString.toLowerCase().includes(months[i].toLowerCase()) || 
-            (months[i+12] && dateString.toLowerCase().includes(months[i+12].toLowerCase()))) {
+        if (dateString.toLowerCase().includes(months[i].toLowerCase())) {
             monthIdx = i;
             break;
         }
     }
-    if (monthIdx === -1) return NaN;
+    
+    if (monthIdx === -1) {
+        const isoMatch = dateString.match(/\b(20\d{2})[-/](\d{1,2})[-/](\d{1,2})\b/);
+        if (isoMatch) {
+            return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2])-1, parseInt(isoMatch[3])).getTime();
+        }
+        return NaN;
+    }
+    
     const dayMatch = dateString.match(/\b(\d{1,2})\b/);
     const day = dayMatch ? parseInt(dayMatch[1]) : 1;
-    return new Date(parseInt(yearMatch[1]), monthIdx, day).getTime();
+    return new Date(year, monthIdx, day).getTime();
 }
 
 function renderConferences() {
