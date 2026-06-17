@@ -5,8 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelBtn = document.getElementById('cancelBtn');
     const conferenceForm = document.getElementById('conferenceForm');
-    const conferencesGrid = document.getElementById('conferencesGrid');
+    const conferencesList = document.getElementById('conferencesList');
     const emptyState = document.getElementById('emptyState');
+    const totalCount = document.getElementById('totalCount');
 
     // State
     let conferences = JSON.parse(localStorage.getItem('cf-deadline-data')) || [];
@@ -25,6 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modalOverlay) closeModal();
     });
 
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
     conferenceForm.addEventListener('submit', (e) => {
         e.preventDefault();
         saveConference();
@@ -34,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal() {
         modalOverlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        document.getElementById('confName').focus();
     }
 
     function closeModal() {
@@ -65,21 +74,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteConference(id) {
-        if (confirm('Are you sure you want to delete this conference?')) {
+        if (confirm('Are you sure you want to remove this deadline?')) {
             conferences = conferences.filter(c => c.id !== id);
             saveToLocalStorage();
             renderConferences();
         }
     }
 
+    // Expose deleteConference to global scope for inline onclick handlers
+    window.deleteConference = deleteConference;
+
     function saveToLocalStorage() {
         localStorage.setItem('cf-deadline-data', JSON.stringify(conferences));
     }
 
     function renderConferences() {
+        totalCount.textContent = conferences.length;
+
         if (conferences.length === 0) {
-            conferencesGrid.innerHTML = '';
-            conferencesGrid.appendChild(emptyState);
+            conferencesList.innerHTML = '';
+            conferencesList.appendChild(emptyState);
             emptyState.style.display = 'block';
             return;
         }
@@ -90,89 +104,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         emptyState.style.display = 'none';
-        conferencesGrid.innerHTML = '';
+        conferencesList.innerHTML = '';
 
-        sortedConferences.forEach(conf => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.dataset.id = conf.id;
-            card.dataset.deadline = conf.deadline;
+        sortedConferences.forEach((conf, index) => {
+            const item = document.createElement('div');
+            item.className = 'list-item';
+            item.dataset.id = conf.id;
+            item.dataset.deadline = conf.deadline;
+            item.style.animationDelay = `${index * 0.05}s`;
 
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="card-title-group">
-                        <h3 class="card-abbr">${conf.abbr}</h3>
-                        <p class="card-name" title="${conf.name}">${conf.name}</p>
+            const locationHTML = conf.location ? `
+                <div class="meta-group">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    ${conf.location}
+                </div>
+            ` : '';
+
+            const urlHTML = conf.url ? `
+                <a href="${conf.url}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
+            ` : '';
+
+            item.innerHTML = `
+                <div class="item-left">
+                    <div class="item-title-row">
+                        <div class="status-dot"></div>
+                        <span class="item-abbr">${conf.abbr}</span>
+                        <span class="item-name">${conf.name}</span>
                     </div>
-                    <div class="card-actions">
-                        ${conf.url ? `
-                        <a href="${conf.url}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                <polyline points="15 3 21 3 21 9"></polyline>
-                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                    <div class="item-meta">
+                        <div class="meta-group">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
                             </svg>
-                        </a>
-                        ` : ''}
-                        <button class="icon-btn delete-btn" title="Delete">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            ${formatDate(conf.deadline)}
+                        </div>
+                        ${locationHTML}
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="timer">
+                        <div class="time-block">
+                            <span class="time-val days">--</span>
+                            <span class="time-label">d</span>
+                        </div>
+                        <div class="time-block">
+                            <span class="time-val hours">--</span>
+                            <span class="time-label">h</span>
+                        </div>
+                        <div class="time-block">
+                            <span class="time-val minutes">--</span>
+                            <span class="time-label">m</span>
+                        </div>
+                        <div class="time-block">
+                            <span class="time-val seconds">--</span>
+                            <span class="time-label">s</span>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        ${urlHTML}
+                        <button class="icon-btn delete" onclick="deleteConference('${conf.id}')" title="Remove">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <div class="card-meta">
-                    <div class="meta-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        ${formatDate(conf.deadline)}
-                    </div>
-                    ${conf.location ? `
-                    <div class="meta-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        ${conf.location}
-                    </div>
-                    ` : ''}
-                </div>
-                <div class="countdown-container">
-                    <div class="countdown-box">
-                        <span class="countdown-value days">--</span>
-                        <span class="countdown-label">Days</span>
-                    </div>
-                    <div class="countdown-box">
-                        <span class="countdown-value hours">--</span>
-                        <span class="countdown-label">Hrs</span>
-                    </div>
-                    <div class="countdown-box">
-                        <span class="countdown-value minutes">--</span>
-                        <span class="countdown-label">Min</span>
-                    </div>
-                    <div class="countdown-box">
-                        <span class="countdown-value seconds">--</span>
-                        <span class="countdown-label">Sec</span>
-                    </div>
-                </div>
             `;
 
-            const deleteBtn = card.querySelector('.delete-btn');
-            deleteBtn.addEventListener('click', () => deleteConference(conf.id));
-
-            conferencesGrid.appendChild(card);
+            conferencesList.appendChild(item);
         });
 
         updateAllCountdowns();
     }
 
     function formatDate(dateStr) {
-        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateStr).toLocaleDateString('en-US', options);
     }
 
@@ -181,17 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateAllCountdowns() {
-        const cards = document.querySelectorAll('.card');
+        const items = document.querySelectorAll('.list-item');
         const now = new Date().getTime();
 
-        cards.forEach(card => {
-            const deadline = new Date(card.dataset.deadline).getTime();
+        items.forEach(item => {
+            const deadline = new Date(item.dataset.deadline).getTime();
             const distance = deadline - now;
 
-            const daysEl = card.querySelector('.days');
-            const hoursEl = card.querySelector('.hours');
-            const minsEl = card.querySelector('.minutes');
-            const secsEl = card.querySelector('.seconds');
+            const daysEl = item.querySelector('.days');
+            const hoursEl = item.querySelector('.hours');
+            const minsEl = item.querySelector('.minutes');
+            const secsEl = item.querySelector('.seconds');
 
             if (distance < 0) {
                 // Expired
@@ -200,8 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 minsEl.textContent = '00';
                 secsEl.textContent = '00';
                 
-                card.classList.remove('status-success', 'status-warning', 'status-danger');
-                card.classList.add('status-expired');
+                item.className = 'list-item expired';
                 return;
             }
 
@@ -218,13 +236,13 @@ document.addEventListener('DOMContentLoaded', () => {
             secsEl.textContent = seconds.toString().padStart(2, '0');
 
             // Status colors
-            card.classList.remove('status-success', 'status-warning', 'status-danger', 'status-expired');
+            item.className = 'list-item';
             if (days < 3) {
-                card.classList.add('status-danger');
+                item.classList.add('danger');
             } else if (days < 14) {
-                card.classList.add('status-warning');
+                item.classList.add('warning');
             } else {
-                card.classList.add('status-success');
+                item.classList.add('success');
             }
         });
     }

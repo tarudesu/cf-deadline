@@ -3,76 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cf-deadline | Conference Deadline Tracker</title>
-    <meta name="description" content="A beautiful and dynamic tool to track your conference deadlines with real-time countdowns.">
+    <title>cf-deadline | Track Conferences</title>
+    <meta name="description" content="A minimalist, high-end dashboard to track conference deadlines.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="background-elements">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-
-    <main class="container">
-        <header>
-            <h1>cf-deadline <span>Deadline Tracker</span></h1>
+    <div class="app-container">
+        <!-- Sidebar / Header Area -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo"></div>
+                <h1>cf-deadline</h1>
+            </div>
+            <p class="subtitle">Your private tracker for academic and professional conferences.</p>
+            
             <button id="addConferenceBtn" class="primary-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Add Conference
+                New Deadline
             </button>
-        </header>
-
-        <section id="conferencesGrid" class="conferences-grid">
-            <!-- Conferences will be injected here via JS -->
-            <div id="emptyState" class="empty-state">
-                <p>No conferences tracked yet. Click "Add Conference" to get started!</p>
+            
+            <div class="security-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Local Storage Only
             </div>
-        </section>
-    </main>
+        </aside>
 
-    <!-- Modal Form for Adding Conference -->
+        <!-- Main Content Area -->
+        <main class="content">
+            <div class="list-header">
+                <h2>Upcoming Deadlines</h2>
+                <div class="view-controls">
+                    <span class="count-badge" id="totalCount">0</span>
+                </div>
+            </div>
+
+            <div id="conferencesList" class="conferences-list">
+                <!-- Items injected here -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <p>No deadlines tracked</p>
+                    <span>Click "New Deadline" to add your first conference.</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form -->
     <div id="conferenceModal" class="modal-overlay hidden">
         <div class="modal">
             <div class="modal-header">
-                <h2>Add Conference</h2>
+                <h2>New Deadline</h2>
                 <button id="closeModalBtn" class="icon-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6L18 18"></path>
                     </svg>
                 </button>
             </div>
             <form id="conferenceForm">
                 <div class="form-group">
-                    <label for="confName">Conference Name <span class="required">*</span></label>
+                    <label for="confName">Conference Title</label>
                     <input type="text" id="confName" placeholder="e.g., Computer Vision and Pattern Recognition" required>
                 </div>
-                <div class="form-group row">
-                    <div class="col">
-                        <label for="confAbbr">Abbreviation <span class="required">*</span></label>
-                        <input type="text" id="confAbbr" placeholder="e.g., CVPR 2027" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="confAbbr">Abbreviation</label>
+                        <input type="text" id="confAbbr" placeholder="e.g., CVPR 27" required>
                     </div>
-                    <div class="col">
+                    <div class="form-group">
                         <label for="confLocation">Location</label>
                         <input type="text" id="confLocation" placeholder="e.g., Seattle, WA">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="confDate">Deadline Date & Time (Local) <span class="required">*</span></label>
+                    <label for="confDate">Deadline Date & Time</label>
                     <input type="datetime-local" id="confDate" required>
                 </div>
                 <div class="form-group">
-                    <label for="confUrl">Website URL</label>
+                    <label for="confUrl">Website URL (Optional)</label>
                     <input type="url" id="confUrl" placeholder="https://...">
                 </div>
                 <div class="modal-actions">
                     <button type="button" id="cancelBtn" class="secondary-btn">Cancel</button>
-                    <button type="submit" class="primary-btn">Save Conference</button>
+                    <button type="submit" class="primary-btn">Save</button>
                 </div>
             </form>
         </div>
