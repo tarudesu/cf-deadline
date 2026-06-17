@@ -8,8 +8,8 @@
     --text-secondary: #334155;
     --text-tertiary: #64748b;
     
-    --accent-primary: #2563eb; /* Friendly blue */
-    --accent-hover: #1d4ed8;
+    --accent-primary: #0F4C81; /* Pantone Classic Blue 2020 */
+    --accent-hover: #0b3b66;
     --accent-danger: #ef4444;
     --accent-warning: #f59e0b;
     --accent-success: #10b981;
@@ -44,13 +44,13 @@ body {
     font-family: var(--font-sans);
     background-color: var(--bg-color);
     background-image: 
-        radial-gradient(at 40% 20%, hsla(228,100%,84%,0.6) 0px, transparent 50%),
-        radial-gradient(at 80% 0%, hsla(189,100%,86%,0.6) 0px, transparent 50%),
-        radial-gradient(at 0% 50%, hsla(315,100%,93%,0.6) 0px, transparent 50%),
-        radial-gradient(at 80% 50%, hsla(340,100%,86%,0.6) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, hsla(22,100%,87%,0.6) 0px, transparent 50%),
-        radial-gradient(at 80% 100%, hsla(242,100%,80%,0.6) 0px, transparent 50%),
-        radial-gradient(at 0% 0%, hsla(343,100%,86%,0.6) 0px, transparent 50%);
+        radial-gradient(at 40% 20%, hsla(208,80%,85%,0.6) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, hsla(200,90%,88%,0.6) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(220,50%,92%,0.6) 0px, transparent 50%),
+        radial-gradient(at 80% 50%, hsla(215,60%,85%,0.6) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(190,70%,89%,0.6) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, hsla(230,60%,88%,0.6) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, hsla(210,100%,94%,0.6) 0px, transparent 50%);
     background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
@@ -488,7 +488,7 @@ button {
     justify-content: center;
     gap: 0.5rem;
     background: var(--accent-primary);
-    color: var(--bg-color);
+    color: #ffffff;
     padding: 0.6rem 1rem;
     border-radius: var(--radius-sm);
     font-weight: 500;
