@@ -605,8 +605,9 @@ function renderConferences() {
             </div>
         `;
 
-        const modeText = conf.mode ? (conf.location ? ` (${conf.mode})` : `Mode: <strong>${conf.mode}</strong>`) : '';
-        const hasLocOrMode = conf.location || conf.mode;
+        const displayMode = conf.mode || 'In-person';
+        const modeText = conf.location ? ` &bull; Mode: <strong>${displayMode}</strong>` : `Mode: <strong>${displayMode}</strong>`;
+        const hasLocOrMode = conf.location || displayMode;
         
         const locationHTML = hasLocOrMode ? `
             <div class="meta-row">
