@@ -53,8 +53,7 @@ const parseMarkdownBtn = document.getElementById('parseMarkdownBtn');
 
 // Auth Elements
 const adminControls = document.getElementById('adminControls');
-const loginBtn = document.getElementById('loginBtn');
-const loginText = document.getElementById('loginText');
+const logoutBtn = document.getElementById('logoutBtn');
 
 // State
 let conferences = [];
@@ -65,26 +64,34 @@ let countdownInterval = null;
 const ADMIN_GITHUB_USERNAME = 'tarudesu';
 
 // Event Listeners - Auth
-loginBtn.addEventListener('click', async () => {
-    if (isAdmin) {
-        // Logout
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Sign out error", error);
-        }
-    } else {
-        // Login
-        try {
-            loginText.textContent = "Logging in...";
-            await signInWithPopup(auth, provider);
-        } catch (error) {
-            console.error("Login error", error);
-            loginText.textContent = "Admin Login";
-            alert("Failed to login with GitHub: " + error.message);
-        }
+logoutBtn.addEventListener('click', async () => {
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error("Sign out error", error);
     }
 });
+
+// Trigger Login Flow
+async function triggerLogin() {
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Login error", error);
+        alert("Failed to login with GitHub: " + error.message);
+    }
+}
+
+// Check for login query parameter
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('login') && urlParams.get('login') === 'true') {
+    // Clean the URL query params without reloading
+    const newUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+    
+    // Trigger login
+    triggerLogin();
+}
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -99,21 +106,25 @@ onAuthStateChanged(auth, async (user) => {
             uid: uid
         });
         
-        // Enforce admin username matching
-        if (githubUsername.toLowerCase() !== ADMIN_GITHUB_USERNAME.toLowerCase()) {
-            alert(`You are not authorized as admin.\n\nLogged in as: "${githubUsername}"\nExpected: "${ADMIN_GITHUB_USERNAME}"\nUID: ${uid}`);
+        // Enforce admin username matching (checking both screenName and displayName case-insensitively)
+        const usernameClean = githubUsername.trim().toLowerCase();
+        const displayNameClean = user.displayName ? user.displayName.replace(/\s+/g, '').toLowerCase() : '';
+        const adminClean = ADMIN_GITHUB_USERNAME.toLowerCase();
+
+        const isAuthorized = usernameClean === adminClean || displayNameClean === adminClean;
+
+        if (!isAuthorized) {
+            alert(`You are not authorized as admin.\n\nLogged in as: "${githubUsername || user.displayName}"\nExpected: "${ADMIN_GITHUB_USERNAME}"\nUID: ${uid}`);
             await signOut(auth);
             return;
         }
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
-        loginText.textContent = `Logged in as ${githubUsername} (Logout)`;
         renderConferences(); // re-render to show delete buttons
     } else {
         isAdmin = false;
         adminControls.classList.add('hidden');
-        loginText.textContent = 'Admin Login';
         renderConferences(); // re-render to hide delete buttons
     }
 });
