@@ -1074,9 +1074,19 @@ select:focus {
     bottom: 1.25rem;
 }
 
+/* Grid Layout */
+.conferences-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
 /* Comprehensive Responsive Layouts */
 
 @media (max-width: 900px) {
+    .conferences-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
     .app-container {
         flex-direction: column;
     }
