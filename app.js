@@ -500,51 +500,47 @@ function renderConferences() {
 
         const tzLabel = conf.timezone === 'AoE' ? 'AoE' : (conf.timezone === 'UTC' ? 'UTC' : (conf.timezone === 'Local' ? 'Local' : conf.timezone));
 
-        // Ranking Badge
         const isSpecialRank = conf.ranking && (conf.ranking.toUpperCase().includes('A*') || conf.ranking.toUpperCase().includes('CCF A') || conf.ranking.toUpperCase() === 'A');
         const rankingClass = isSpecialRank ? 'ranking-badge special' : 'ranking-badge';
-        const rankingHTML = conf.ranking ? `<span class="${rankingClass}">${conf.ranking}</span>` : '';
+        const rankingHTML = conf.ranking ? `
+            <span class="${rankingClass}">
+                Ranking: ${conf.ranking} 
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+            </span>
+        ` : '';
 
-        // Abstract Meta Info
-        const abstractMetaHTML = conf.abstractDeadline ? `
-            <div class="meta-group">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        // Meta Rows
+        const abstractHTML = conf.abstractDeadline ? `
+            <div class="meta-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                Abstract: ${formatNominalDate(conf.abstractDeadline)}
+                <span>Abstract Deadline: <strong>${formatNominalDate(conf.abstractDeadline)}</strong> <span class="sub-timer-val abstract-timer"></span></span>
             </div>
         ` : '';
 
-        // Abstract Countdown Row
-        const abstractHTML = conf.abstractDeadline ? `
-            <div class="abstract-countdown-row">
-                <span class="sub-label">Abstract:</span>
-                <span class="sub-timer-val abstract-timer">Calculating...</span>
-            </div>
-        ` : '';
-
-        // Location Meta
         const locationHTML = conf.location ? `
-            <div class="meta-group">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="meta-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                ${conf.location}
+                <span>Location: <br/><strong>${conf.location}</strong></span>
             </div>
         ` : '';
 
-        // Event Date Meta
         const eventDateHTML = conf.eventDate ? `
-            <div class="meta-group">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="meta-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                Event: ${conf.eventDate}
+                <span>Conference Date: <br/><strong>${conf.eventDate}</strong></span>
             </div>
         ` : '';
 
@@ -563,28 +559,21 @@ function renderConferences() {
         item.innerHTML = `
             <div class="item-left">
                 <div class="item-title-row">
-                    <div class="status-dot"></div>
                     <span class="item-abbr">${conf.abbr}</span>
                     ${rankingHTML}
-                    <span class="item-name">${conf.name}</span>
                 </div>
-                <div class="item-meta">
-                    <div class="meta-group">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>
-                        Deadline: ${formatNominalDate(conf.deadline)} (${tzLabel})
-                    </div>
-                    ${abstractMetaHTML}
+                <div class="item-name">${conf.name}</div>
+                <div class="item-meta-stacked">
                     ${locationHTML}
                     ${eventDateHTML}
+                    ${abstractHTML}
                 </div>
-                ${abstractHTML}
             </div>
             <div class="item-right">
+                <div class="deadline-label">
+                    Submission Deadline
+                    <span class="tz-label">(${tzLabel})</span>
+                </div>
                 <div class="timer">
                     <div class="time-block">
                         <span class="time-val days">--</span>
@@ -603,6 +592,7 @@ function renderConferences() {
                         <span class="time-label">s</span>
                     </div>
                 </div>
+                <div class="deadline-date">${formatNominalDate(conf.deadline)}</div>
                 <div class="item-actions">
                     ${urlHTML}
                     <button class="${deleteBtnClass}" onclick="deleteConference('${conf.id}')" title="Remove">
@@ -672,21 +662,20 @@ function updateAllCountdowns() {
         // Handle Abstract Countdown
         const abstractUtc = parseInt(item.dataset.abstractUtc);
         const abstractTimerEl = item.querySelector('.abstract-timer');
-        const abstractRowEl = item.querySelector('.abstract-countdown-row');
         
-        if (!isNaN(abstractUtc) && abstractTimerEl && abstractRowEl) {
+        if (!isNaN(abstractUtc) && abstractTimerEl) {
             const absDistance = abstractUtc - now;
             if (absDistance < 0) {
-                abstractTimerEl.textContent = 'Passed';
-                abstractRowEl.classList.add('expired');
+                abstractTimerEl.textContent = '(Passed)';
+                abstractTimerEl.style.color = 'var(--accent-danger)';
             } else {
                 const absDays = Math.floor(absDistance / (1000 * 60 * 60 * 24));
                 const absHours = Math.floor((absDistance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const absMinutes = Math.floor((absDistance % (1000 * 60 * 60)) / (1000 * 60));
                 const absSeconds = Math.floor((absDistance % (1000 * 60)) / 1000);
                 
-                abstractTimerEl.textContent = `${absDays}d ${absHours.toString().padStart(2, '0')}h ${absMinutes.toString().padStart(2, '0')}m ${absSeconds.toString().padStart(2, '0')}s`;
-                abstractRowEl.classList.remove('expired');
+                abstractTimerEl.textContent = `(in ${absDays}d ${absHours.toString().padStart(2, '0')}h ${absMinutes.toString().padStart(2, '0')}m ${absSeconds.toString().padStart(2, '0')}s)`;
+                abstractTimerEl.style.color = 'var(--text-tertiary)';
             }
         }
     });
