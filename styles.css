@@ -464,7 +464,7 @@ button {
 }
 
 .modal {
-    background: #000000;
+    background: var(--panel-bg);
     border: 1px solid var(--border-hover);
     border-radius: var(--radius-lg);
     width: 100%;
