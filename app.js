@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAGaUrGzk_eEA7LXubbkkp4b3t8C7J8yrI",
@@ -93,6 +93,7 @@ authLoginBtn.addEventListener('click', async () => {
         const originalText = authLoginBtn.innerHTML;
         authLoginBtn.textContent = "Authenticating...";
         authLoginBtn.disabled = true;
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithPopup(auth, provider);
     } catch (error) {
         console.error("Login error", error);
@@ -143,12 +144,13 @@ onAuthStateChanged(auth, async (user) => {
         const isAuthorized = usernameClean === adminClean || displayNameClean === adminClean;
 
         if (!isAuthorized) {
-            // Display inline error message in UI
-            authStatusMessage.textContent = `Access Denied: Logged in as "${githubUsername || user.displayName}". Expected admin "${ADMIN_GITHUB_USERNAME}".`;
+            const errorMsg = `Access Denied: Logged in as "${githubUsername || user.displayName}". Expected admin "${ADMIN_GITHUB_USERNAME}".`;
+            alert(errorMsg); // Add alert so it's impossible to miss
+            
+            authStatusMessage.textContent = errorMsg;
             authStatusMessage.className = "auth-status-message error";
             authStatusMessage.classList.remove('hidden');
             
-            // Bring up the login modal if it was hidden so they see the error
             adminLoginModal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
