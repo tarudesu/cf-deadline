@@ -25,6 +25,8 @@ const conferenceForm = document.getElementById('conferenceForm');
 const conferencesList = document.getElementById('conferencesList');
 const emptyState = document.getElementById('emptyState');
 const totalCount = document.getElementById('totalCount');
+const searchInput = document.getElementById('searchInput');
+const rankFilter = document.getElementById('rankFilter');
 
 // Tab Selection & Markdown Elements
 const tabManual = document.getElementById('tabManual');
@@ -405,6 +407,7 @@ onSnapshot(q, (querySnapshot) => {
             ...doc.data()
         });
     });
+    updateRankingFilterOptions();
     renderConferences();
     if (!countdownInterval) {
         startCountdownTimer();
@@ -426,17 +429,52 @@ async function deleteConference(id) {
 // Attach to window so inline onclick handlers can reach it
 window.deleteConference = deleteConference;
 
-function renderConferences() {
-    totalCount.textContent = conferences.length;
+function updateRankingFilterOptions() {
+    const currentVal = rankFilter.value;
+    const uniqueRanks = [...new Set(conferences.map(c => c.ranking).filter(r => r))].sort();
+    
+    let optionsHtml = '<option value="All">All Rankings</option>';
+    uniqueRanks.forEach(rank => {
+        optionsHtml += `<option value="${rank}">${rank}</option>`;
+    });
+    
+    rankFilter.innerHTML = optionsHtml;
+    if (uniqueRanks.includes(currentVal)) {
+        rankFilter.value = currentVal;
+    }
+}
 
-    if (conferences.length === 0) {
+searchInput.addEventListener('input', renderConferences);
+rankFilter.addEventListener('change', renderConferences);
+
+function renderConferences() {
+    const searchTerm = (searchInput.value || '').toLowerCase();
+    const selectedRank = rankFilter.value;
+
+    let filtered = conferences.filter(conf => {
+        const matchSearch = (conf.name && conf.name.toLowerCase().includes(searchTerm)) || 
+                            (conf.abbr && conf.abbr.toLowerCase().includes(searchTerm));
+        const matchRank = selectedRank === 'All' || conf.ranking === selectedRank;
+        return matchSearch && matchRank;
+    });
+
+    totalCount.textContent = filtered.length;
+
+    if (filtered.length === 0) {
         conferencesList.innerHTML = '';
+        if (conferences.length > 0) {
+            emptyState.querySelector('p').textContent = 'No matching deadlines';
+            emptyState.querySelector('span').textContent = 'Try adjusting your search or filter.';
+        } else {
+            emptyState.querySelector('p').textContent = 'No deadlines tracked';
+            emptyState.querySelector('span').textContent = 'Click "New Deadline" to add your first conference.';
+        }
         conferencesList.appendChild(emptyState);
         emptyState.style.display = 'block';
         return;
     }
 
-    const sortedConferences = [...conferences].sort((a, b) => {
+    const sortedConferences = [...filtered].sort((a, b) => {
         const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
         const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
         return aUtc - bUtc;
