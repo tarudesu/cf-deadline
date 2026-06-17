@@ -840,6 +840,16 @@ select:focus {
 
 
 /* Abstract Countdown UI */
+.abstract-timer {
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    font-size: 0.85em;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
 .abstract-countdown-row {
     font-size: 0.72rem;
     font-family: var(--font-mono);
