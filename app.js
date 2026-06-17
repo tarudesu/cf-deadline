@@ -53,7 +53,7 @@ let conferences = [];
 let editingId = null;
 let isAdmin = false;
 let countdownInterval = null;
-let currentTab = 'upcoming'; // upcoming, past, all
+let currentTab = 'upcoming-deadlines'; // upcoming-deadlines, upcoming-events, past, all
 
 // The repo owner's github username allowed to edit
 const ADMIN_GITHUB_USERNAME = 'tarudesu';
@@ -492,6 +492,8 @@ function updateRankingFilterOptions() {
 
 searchInput.addEventListener('input', renderConferences);
 rankFilter.addEventListener('change', renderConferences);
+const showOldCheck = document.getElementById('showOldCheck');
+if (showOldCheck) showOldCheck.addEventListener('change', renderConferences);
 
 mainTabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -502,54 +504,79 @@ mainTabs.forEach(tab => {
     });
 });
 
+function parseEventDate(dateString) {
+    if (!dateString) return NaN;
+    const yearMatch = dateString.match(/\b(20\d{2})\b/);
+    if (!yearMatch) return NaN;
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                    "January", "February", "March", "April", "June", "July", "August", "September", "October", "November", "December"];
+    let monthIdx = -1;
+    for (let i = 0; i < 12; i++) {
+        if (dateString.toLowerCase().includes(months[i].toLowerCase()) || 
+            (months[i+12] && dateString.toLowerCase().includes(months[i+12].toLowerCase()))) {
+            monthIdx = i;
+            break;
+        }
+    }
+    if (monthIdx === -1) return NaN;
+    const dayMatch = dateString.match(/\b(\d{1,2})\b/);
+    const day = dayMatch ? parseInt(dayMatch[1]) : 1;
+    return new Date(parseInt(yearMatch[1]), monthIdx, day).getTime();
+}
+
 function renderConferences() {
     const searchTerm = (searchInput.value || '').toLowerCase();
     const selectedRank = rankFilter.value;
+    const showOldCheck = document.getElementById('showOldCheck');
+    const showOld = showOldCheck ? showOldCheck.checked : false;
+    const showOldToggle = document.getElementById('showOldToggle');
+    
+    if (showOldToggle) {
+        showOldToggle.style.display = (currentTab === 'past' || currentTab === 'all') ? 'flex' : 'none';
+    }
+
+    const now = new Date().getTime();
+    const sixMonthsAgo = now - (180 * 24 * 60 * 60 * 1000);
 
     let filtered = conferences.filter(conf => {
         const matchSearch = (conf.name && conf.name.toLowerCase().includes(searchTerm)) || 
                             (conf.abbr && conf.abbr.toLowerCase().includes(searchTerm));
         const matchRank = selectedRank === 'All' || conf.ranking === selectedRank;
-        return matchSearch && matchRank;
-    });
+        
+        if (!matchSearch || !matchRank) return false;
 
-    const now = new Date().getTime();
-    
-    // Separate into upcoming and past
-    const upcomingList = [];
-    const pastList = [];
-
-    filtered.forEach(conf => {
         const deadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
-        if (deadlineUtc >= now) {
-            upcomingList.push(conf);
-        } else {
-            pastList.push(conf);
+        let eventUtc = parseEventDate(conf.eventDate);
+        if (isNaN(eventUtc)) eventUtc = deadlineUtc;
+
+        if (currentTab === 'upcoming-deadlines') {
+            return deadlineUtc >= now;
+        } else if (currentTab === 'upcoming-events') {
+            return eventUtc >= now;
+        } else if (currentTab === 'past') {
+            if (deadlineUtc >= now) return false;
+            if (!showOld && deadlineUtc < sixMonthsAgo && eventUtc < sixMonthsAgo) return false;
+            return true;
+        } else if (currentTab === 'all') {
+            if (!showOld && deadlineUtc < sixMonthsAgo && eventUtc < sixMonthsAgo) return false;
+            return true;
         }
+        return true;
     });
 
-    // Sort upcoming ascending (soonest first)
-    upcomingList.sort((a, b) => {
-        const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
-        const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
-        return aUtc - bUtc;
-    });
-
-    // Sort past descending (most recently passed first)
-    pastList.sort((a, b) => {
-        const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
-        const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
-        return bUtc - aUtc;
-    });
-
-    let listToRender = [];
-    if (currentTab === 'upcoming') {
-        listToRender = upcomingList;
-    } else if (currentTab === 'past') {
-        listToRender = pastList;
+    if (currentTab === 'upcoming-deadlines') {
+        filtered.sort((a, b) => (getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0) - (getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0));
+    } else if (currentTab === 'upcoming-events') {
+        filtered.sort((a, b) => {
+            let ea = parseEventDate(a.eventDate); if(isNaN(ea)) ea = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
+            let eb = parseEventDate(b.eventDate); if(isNaN(eb)) eb = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
+            return ea - eb;
+        });
     } else {
-        listToRender = [...upcomingList, ...pastList];
+        filtered.sort((a, b) => (getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0) - (getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0));
     }
+    
+    let listToRender = filtered;
 
     totalCount.textContent = listToRender.length;
 
@@ -714,7 +741,12 @@ function renderConferences() {
         // Find the first upcoming conference to be the hero
         const topItem = listToRender[0];
         const deadlineUtc = getUtcTimestamp(topItem.deadline, topItem.timezone || 'AoE') || 0;
-        if (deadlineUtc >= now) {
+        let eventUtc = parseEventDate(topItem.eventDate);
+        if (isNaN(eventUtc)) eventUtc = deadlineUtc;
+
+        const isFuture = currentTab === 'upcoming-events' ? eventUtc >= now : deadlineUtc >= now;
+        
+        if (isFuture || currentTab === 'all') {
             const heroEl = createConferenceElement(topItem, false, 0);
             conferencesList.appendChild(heroEl);
             listToRender = listToRender.slice(1);

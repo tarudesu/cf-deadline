@@ -47,7 +47,8 @@
             </div>
 
             <div class="main-tabs">
-                <button type="button" class="main-tab active" data-tab="upcoming">Upcoming</button>
+                <button type="button" class="main-tab active" data-tab="upcoming-deadlines">Upcoming Deadlines</button>
+                <button type="button" class="main-tab" data-tab="upcoming-events">Upcoming Events</button>
                 <button type="button" class="main-tab" data-tab="past">Past</button>
                 <button type="button" class="main-tab" data-tab="all">All</button>
             </div>
@@ -60,7 +61,11 @@
                     </svg>
                     <input type="text" id="searchInput" placeholder="Search conferences...">
                 </div>
-                <div class="filter-group">
+                <div class="filter-group" style="display: flex; align-items: center; gap: 1rem;">
+                    <label id="showOldToggle" class="hidden" style="display: none; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm);">
+                        <input type="checkbox" id="showOldCheck">
+                        Show >6mo old
+                    </label>
                     <select id="rankFilter">
                         <option value="All">All Rankings</option>
                     </select>
