@@ -634,8 +634,8 @@ input {
 
 input:focus {
     outline: none;
-    border-color: var(--text-tertiary);
-    background: #111;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 input::placeholder {
@@ -804,8 +804,8 @@ textarea {
 
 textarea:focus {
     outline: none;
-    border-color: var(--text-tertiary);
-    background: #111;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Custom Select Dropdown */
@@ -829,8 +829,8 @@ select {
 
 select:focus {
     outline: none;
-    border-color: var(--text-tertiary);
-    background-color: #111;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Flex layout helper classes */
