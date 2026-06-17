@@ -685,9 +685,6 @@ function renderConferences() {
 
         if (currentTab === 'upcoming-events') {
             mainTimerLabel = 'Conference Date';
-            const dlUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
-            const deadlinePassed = dlUtc < now;
-            const passedHtml = deadlinePassed ? ` <span style="color: var(--accent-danger);">(Passed)</span>` : '';
             eventDateHTML = `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -696,9 +693,11 @@ function renderConferences() {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <span>Submission: <strong>${formatNominalDate(conf.deadline)}</strong>${passedHtml}</span>
+                <span>Submission: <strong>${formatNominalDate(conf.deadline)}</strong> <span class="sub-timer-val sub-deadline-timer"></span></span>
             </div>
             `;
+            
+            item.dataset.trueDeadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
         }
 
         const urlHTML = conf.url ? `
@@ -885,6 +884,25 @@ function updateAllCountdowns() {
                 
                 abstractTimerEl.textContent = `(in ${absDays}d ${absHours.toString().padStart(2, '0')}h ${absMinutes.toString().padStart(2, '0')}m ${absSeconds.toString().padStart(2, '0')}s)`;
                 abstractTimerEl.style.color = 'var(--text-tertiary)';
+            }
+        }
+        // Handle Sub Deadline Countdown for Events tab
+        const trueDeadlineUtc = parseInt(item.dataset.trueDeadlineUtc);
+        const subDeadlineTimerEl = item.querySelector('.sub-deadline-timer');
+        
+        if (!isNaN(trueDeadlineUtc) && subDeadlineTimerEl) {
+            const subDistance = trueDeadlineUtc - now;
+            if (subDistance < 0) {
+                subDeadlineTimerEl.textContent = '(Passed)';
+                subDeadlineTimerEl.style.color = 'var(--accent-danger)';
+            } else {
+                const subDays = Math.floor(subDistance / (1000 * 60 * 60 * 24));
+                const subHours = Math.floor((subDistance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const subMinutes = Math.floor((subDistance % (1000 * 60 * 60)) / (1000 * 60));
+                const subSeconds = Math.floor((subDistance % (1000 * 60)) / 1000);
+                
+                subDeadlineTimerEl.textContent = `(in ${subDays}d ${subHours.toString().padStart(2, '0')}h ${subMinutes.toString().padStart(2, '0')}m ${subSeconds.toString().padStart(2, '0')}s)`;
+                subDeadlineTimerEl.style.color = 'var(--text-tertiary)';
             }
         }
     });
