@@ -57,6 +57,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 const adminLoginModal = document.getElementById('adminLoginModal');
 const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
 const authLoginBtn = document.getElementById('authLoginBtn');
+const authStatusMessage = document.getElementById('authStatusMessage');
 
 // State
 let conferences = [];
@@ -78,19 +79,26 @@ logoutBtn.addEventListener('click', async () => {
 // Close Auth Modal
 closeAuthModalBtn.addEventListener('click', () => {
     adminLoginModal.classList.add('hidden');
+    authStatusMessage.classList.add('hidden');
+    authStatusMessage.textContent = '';
     document.body.style.overflow = '';
 });
 
 // Auth Login trigger via direct user click (avoids browser popup blocker)
 authLoginBtn.addEventListener('click', async () => {
     try {
+        authStatusMessage.classList.add('hidden');
+        authStatusMessage.textContent = '';
+        
         const originalText = authLoginBtn.innerHTML;
         authLoginBtn.textContent = "Authenticating...";
         authLoginBtn.disabled = true;
         await signInWithPopup(auth, provider);
     } catch (error) {
         console.error("Login error", error);
-        alert("Failed to login with GitHub: " + error.message);
+        authStatusMessage.textContent = "Failed to login: " + error.message;
+        authStatusMessage.className = "auth-status-message error";
+        authStatusMessage.classList.remove('hidden');
     } finally {
         authLoginBtn.disabled = false;
         authLoginBtn.innerHTML = `
@@ -135,13 +143,23 @@ onAuthStateChanged(auth, async (user) => {
         const isAuthorized = usernameClean === adminClean || displayNameClean === adminClean;
 
         if (!isAuthorized) {
-            alert(`You are not authorized as admin.\n\nLogged in as: "${githubUsername || user.displayName}"\nExpected: "${ADMIN_GITHUB_USERNAME}"\nUID: ${uid}`);
+            // Display inline error message in UI
+            authStatusMessage.textContent = `Access Denied: Logged in as "${githubUsername || user.displayName}". Expected admin "${ADMIN_GITHUB_USERNAME}".`;
+            authStatusMessage.className = "auth-status-message error";
+            authStatusMessage.classList.remove('hidden');
+            
+            // Bring up the login modal if it was hidden so they see the error
+            adminLoginModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
             await signOut(auth);
             return;
         }
 
-        // Close admin login modal if open
+        // Close admin login modal and clear status
         adminLoginModal.classList.add('hidden');
+        authStatusMessage.classList.add('hidden');
+        authStatusMessage.textContent = '';
         document.body.style.overflow = '';
 
         isAdmin = true;
