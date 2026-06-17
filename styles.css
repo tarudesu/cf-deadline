@@ -914,3 +914,115 @@ select:focus {
     color: var(--accent-success);
 }
 
+/* Tabs */
+.main-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.main-tab {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 0.5rem 0.5rem;
+    position: relative;
+    transition: var(--transition);
+}
+
+.main-tab:hover {
+    color: var(--text-secondary);
+}
+
+.main-tab.active {
+    color: var(--accent-primary);
+}
+
+.main-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.6rem;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-primary);
+    border-radius: 3px 3px 0 0;
+}
+
+/* Grid Layout */
+.conferences-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .conferences-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Compact Card */
+.list-item.compact {
+    padding: 1.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 1.5rem;
+}
+
+.list-item.compact .item-left {
+    max-width: 100%;
+}
+
+.list-item.compact .item-title-row {
+    margin-bottom: 0.5rem;
+}
+
+.list-item.compact .item-abbr {
+    font-size: 1.5rem;
+}
+
+.list-item.compact .item-name {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.list-item.compact .item-right {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.list-item.compact .timer {
+    gap: 0.75rem;
+}
+
+.list-item.compact .time-val {
+    font-size: 2.25rem;
+}
+
+.list-item.compact .deadline-label {
+    display: none; /* Save space on compact view */
+}
+
+.list-item.compact .deadline-date {
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.list-item.compact .item-actions {
+    bottom: 1rem;
+    right: 1.5rem;
+}
+
+.list-item.compact:hover .item-actions {
+    bottom: 1.25rem;
+}

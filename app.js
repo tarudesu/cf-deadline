@@ -27,6 +27,7 @@ const emptyState = document.getElementById('emptyState');
 const totalCount = document.getElementById('totalCount');
 const searchInput = document.getElementById('searchInput');
 const rankFilter = document.getElementById('rankFilter');
+const mainTabs = document.querySelectorAll('.main-tab');
 
 // Tab Selection & Markdown Elements
 const tabManual = document.getElementById('tabManual');
@@ -51,6 +52,7 @@ const authStatusMessage = document.getElementById('authStatusMessage');
 let conferences = [];
 let isAdmin = false;
 let countdownInterval = null;
+let currentTab = 'upcoming'; // upcoming, past, all
 
 // The repo owner's github username allowed to edit
 const ADMIN_GITHUB_USERNAME = 'tarudesu';
@@ -447,6 +449,15 @@ function updateRankingFilterOptions() {
 searchInput.addEventListener('input', renderConferences);
 rankFilter.addEventListener('change', renderConferences);
 
+mainTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        mainTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTab = tab.dataset.tab;
+        renderConferences();
+    });
+});
+
 function renderConferences() {
     const searchTerm = (searchInput.value || '').toLowerCase();
     const selectedRank = rankFilter.value;
@@ -458,13 +469,51 @@ function renderConferences() {
         return matchSearch && matchRank;
     });
 
-    totalCount.textContent = filtered.length;
+    const now = new Date().getTime();
+    
+    // Separate into upcoming and past
+    const upcomingList = [];
+    const pastList = [];
 
-    if (filtered.length === 0) {
+    filtered.forEach(conf => {
+        const deadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
+        if (deadlineUtc >= now) {
+            upcomingList.push(conf);
+        } else {
+            pastList.push(conf);
+        }
+    });
+
+    // Sort upcoming ascending (soonest first)
+    upcomingList.sort((a, b) => {
+        const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
+        const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
+        return aUtc - bUtc;
+    });
+
+    // Sort past descending (most recently passed first)
+    pastList.sort((a, b) => {
+        const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
+        const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
+        return bUtc - aUtc;
+    });
+
+    let listToRender = [];
+    if (currentTab === 'upcoming') {
+        listToRender = upcomingList;
+    } else if (currentTab === 'past') {
+        listToRender = pastList;
+    } else {
+        listToRender = [...upcomingList, ...pastList];
+    }
+
+    totalCount.textContent = listToRender.length;
+
+    if (listToRender.length === 0) {
         conferencesList.innerHTML = '';
         if (conferences.length > 0) {
             emptyState.querySelector('p').textContent = 'No matching deadlines';
-            emptyState.querySelector('span').textContent = 'Try adjusting your search or filter.';
+            emptyState.querySelector('span').textContent = 'Try adjusting your search or tabs.';
         } else {
             emptyState.querySelector('p').textContent = 'No deadlines tracked';
             emptyState.querySelector('span').textContent = 'Click "New Deadline" to add your first conference.';
@@ -474,18 +523,12 @@ function renderConferences() {
         return;
     }
 
-    const sortedConferences = [...filtered].sort((a, b) => {
-        const aUtc = getUtcTimestamp(a.deadline, a.timezone || 'AoE') || 0;
-        const bUtc = getUtcTimestamp(b.deadline, b.timezone || 'AoE') || 0;
-        return aUtc - bUtc;
-    });
-
     emptyState.style.display = 'none';
     conferencesList.innerHTML = '';
 
-    sortedConferences.forEach((conf, index) => {
+    const createConferenceElement = (conf, isCompact, index) => {
         const item = document.createElement('div');
-        item.className = 'list-item';
+        item.className = isCompact ? 'list-item compact' : 'list-item';
         item.dataset.id = conf.id;
         
         const deadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
@@ -504,21 +547,20 @@ function renderConferences() {
         const rankingClass = isSpecialRank ? 'ranking-badge special' : 'ranking-badge';
         const rankingHTML = conf.ranking ? `
             <span class="${rankingClass}">
-                Ranking: ${conf.ranking} 
+                ${isCompact ? '' : 'Ranking: '}${conf.ranking} 
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
             </span>
         ` : '';
 
-        // Meta Rows
         const abstractHTML = conf.abstractDeadline ? `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <span>Abstract Deadline: <strong>${formatNominalDate(conf.abstractDeadline)}</strong> <span class="sub-timer-val abstract-timer"></span></span>
+                <span>Abs: <strong>${formatNominalDate(conf.abstractDeadline)}</strong> <span class="sub-timer-val abstract-timer"></span></span>
             </div>
         ` : '';
 
@@ -528,7 +570,7 @@ function renderConferences() {
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <span>Location: <br/><strong>${conf.location}</strong></span>
+                <span>Loc: <strong>${conf.location}</strong></span>
             </div>
         ` : '';
 
@@ -540,7 +582,7 @@ function renderConferences() {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <span>Conference Date: <br/><strong>${conf.eventDate}</strong></span>
+                <span>Date: <strong>${conf.eventDate}</strong></span>
             </div>
         ` : '';
 
@@ -571,8 +613,7 @@ function renderConferences() {
             </div>
             <div class="item-right">
                 <div class="deadline-label">
-                    Submission Deadline
-                    <span class="tz-label">(${tzLabel})</span>
+                    Deadline <span class="tz-label">(${tzLabel})</span>
                 </div>
                 <div class="timer">
                     <div class="time-block">
@@ -604,9 +645,38 @@ function renderConferences() {
                 </div>
             </div>
         `;
+        return item;
+    };
 
-        conferencesList.appendChild(item);
-    });
+    let hasHero = false;
+
+    // Output top item as hero if not strictly on "Past" tab
+    if (currentTab !== 'past' && listToRender.length > 0) {
+        // Find the first upcoming conference to be the hero
+        const topItem = listToRender[0];
+        const deadlineUtc = getUtcTimestamp(topItem.deadline, topItem.timezone || 'AoE') || 0;
+        if (deadlineUtc >= now) {
+            const heroEl = createConferenceElement(topItem, false, 0);
+            conferencesList.appendChild(heroEl);
+            listToRender = listToRender.slice(1);
+            hasHero = true;
+        }
+    }
+
+    if (listToRender.length > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'conferences-grid';
+        if (hasHero) {
+            grid.style.marginTop = '1.25rem';
+        }
+        
+        listToRender.forEach((conf, i) => {
+            const compactEl = createConferenceElement(conf, true, i + (hasHero ? 1 : 0));
+            grid.appendChild(compactEl);
+        });
+        
+        conferencesList.appendChild(grid);
+    }
 
     updateAllCountdowns();
 }
