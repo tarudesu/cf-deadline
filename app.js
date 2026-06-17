@@ -687,7 +687,7 @@ function renderConferences() {
             mainTimerLabel = 'Conference Date';
             const dlUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
             const deadlinePassed = dlUtc < now;
-            const passedHtml = deadlinePassed ? ` <span style="color: var(--accent-danger); font-weight:700;">(Passed)</span>` : '';
+            const passedHtml = deadlinePassed ? ` <span style="color: var(--accent-danger);">(Passed)</span>` : '';
             eventDateHTML = `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -696,7 +696,7 @@ function renderConferences() {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <span>Sub. Deadline: <strong>${formatNominalDate(conf.deadline)}</strong>${passedHtml}</span>
+                <span>Submission: <strong>${formatNominalDate(conf.deadline)}</strong>${passedHtml}</span>
             </div>
             `;
         }
