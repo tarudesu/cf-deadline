@@ -88,12 +88,20 @@ loginBtn.addEventListener('click', async () => {
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // We can get the GitHub username from user.reloadUserInfo.screenName
-        const githubUsername = user.reloadUserInfo?.screenName || user.displayName;
+        const githubUsername = user.reloadUserInfo?.screenName || user.displayName || "";
+        const email = user.email || "";
+        const uid = user.uid || "";
+
+        console.log("Logged in user details:", {
+            screenName: user.reloadUserInfo?.screenName,
+            displayName: user.displayName,
+            email: email,
+            uid: uid
+        });
         
-        // Enforce admin username matching:
-        if (githubUsername && githubUsername.toLowerCase() !== ADMIN_GITHUB_USERNAME.toLowerCase()) {
-            alert("You are not authorized as admin.");
+        // Enforce admin username matching
+        if (githubUsername.toLowerCase() !== ADMIN_GITHUB_USERNAME.toLowerCase()) {
+            alert(`You are not authorized as admin.\n\nLogged in as: "${githubUsername}"\nExpected: "${ADMIN_GITHUB_USERNAME}"\nUID: ${uid}`);
             await signOut(auth);
             return;
         }
