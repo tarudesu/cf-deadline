@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cf-time | Conference Deadline Tracker</title>
+    <meta name="description" content="A beautiful and dynamic tool to track your conference deadlines with real-time countdowns.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <header>
+            <h1>cf-time <span>Deadline Tracker</span></h1>
+            <button id="addConferenceBtn" class="primary-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Add Conference
+            </button>
+        </header>
+
+        <section id="conferencesGrid" class="conferences-grid">
+            <!-- Conferences will be injected here via JS -->
+            <div id="emptyState" class="empty-state">
+                <p>No conferences tracked yet. Click "Add Conference" to get started!</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Form for Adding Conference -->
+    <div id="conferenceModal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Add Conference</h2>
+                <button id="closeModalBtn" class="icon-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="conferenceForm">
+                <div class="form-group">
+                    <label for="confName">Conference Name <span class="required">*</span></label>
+                    <input type="text" id="confName" placeholder="e.g., Computer Vision and Pattern Recognition" required>
+                </div>
+                <div class="form-group row">
+                    <div class="col">
+                        <label for="confAbbr">Abbreviation <span class="required">*</span></label>
+                        <input type="text" id="confAbbr" placeholder="e.g., CVPR 2027" required>
+                    </div>
+                    <div class="col">
+                        <label for="confLocation">Location</label>
+                        <input type="text" id="confLocation" placeholder="e.g., Seattle, WA">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confDate">Deadline Date & Time (Local) <span class="required">*</span></label>
+                    <input type="datetime-local" id="confDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="confUrl">Website URL</label>
+                    <input type="url" id="confUrl" placeholder="https://...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelBtn" class="secondary-btn">Cancel</button>
+                    <button type="submit" class="primary-btn">Save Conference</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
