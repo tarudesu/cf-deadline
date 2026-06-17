@@ -308,7 +308,23 @@ parseMarkdownBtn.addEventListener('click', () => {
     }
     if (data.eventDate) document.getElementById('confEventDate').value = data.eventDate;
     if (data.url) document.getElementById('confUrl').value = data.url;
-    if (data.ranking) document.getElementById('confRanking').value = data.ranking;
+    
+    if (data.ranking) {
+        const r = data.ranking.trim().toUpperCase();
+        const select = document.getElementById('confRanking');
+        let matched = false;
+        for (let i = 0; i < select.options.length; i++) {
+            if (r.includes(select.options[i].value.toUpperCase())) {
+                select.selectedIndex = i;
+                matched = true;
+                break;
+            }
+        }
+        if (!matched && r.includes('SCOPUS')) select.value = 'Scopus';
+        else if (!matched) select.value = 'Unranked';
+    } else {
+        document.getElementById('confRanking').value = 'Unranked';
+    }
     
     if (data.abstractDeadline) {
         document.getElementById('confAbstractDate').value = formatDateTimeForInput(data.abstractDeadline);
