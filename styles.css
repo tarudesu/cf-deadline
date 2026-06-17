@@ -78,21 +78,53 @@ body {
     gap: 1.5rem;
 }
 
-.floating-admin-controls {
+.floating-controls-wrapper {
     position: fixed;
     bottom: 2rem;
-    right: max(2rem, calc(50vw - 500px + 2rem));
+    right: 2rem;
     z-index: 100;
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.floating-btn {
+    display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.5);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.floating-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.floating-admin-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
     padding: 0.75rem;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
+    width: max-content;
 }
 
 .floating-admin-controls .primary-btn,
@@ -1069,6 +1101,143 @@ select:focus {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
+}
+
+/* Calendar Modal */
+.calendar-modal-content {
+    background: var(--panel-bg);
+    width: 90%;
+    max-width: 1200px;
+    height: 85vh;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.calendar-nav h2 {
+    font-size: 1.5rem;
+    min-width: 200px;
+    text-align: center;
+    font-family: var(--font-display);
+}
+
+.calendar-filters {
+    display: flex;
+    gap: 1.5rem;
+    background: rgba(0,0,0,0.03);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+}
+
+.calendar-filters label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    padding: 1rem 0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    flex: 1;
+    overflow-y: auto;
+    background: var(--border-color);
+    gap: 1px;
+}
+
+.calendar-cell {
+    background: var(--panel-bg);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 120px;
+}
+
+.calendar-cell.other-month {
+    background: rgba(0,0,0,0.02);
+    color: var(--text-tertiary);
+}
+
+.calendar-cell .date-num {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    align-self: flex-end;
+}
+
+.calendar-cell.today .date-num {
+    background: var(--accent-primary);
+    color: white;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.event-chip {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: var(--transition);
+    font-family: var(--font-main);
+    font-weight: 500;
+}
+
+.event-chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.event-chip.type-deadline {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.event-chip.type-event {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* Comprehensive Responsive Layouts */

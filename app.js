@@ -931,3 +931,174 @@ function updateAllCountdowns() {
         }
     });
 }
+
+// --- Calendar View Logic ---
+const calendarBtn = document.getElementById('calendarBtn');
+const calendarModal = document.getElementById('calendarModal');
+const closeCalendarBtn = document.getElementById('closeCalendarBtn');
+const calendarGrid = document.getElementById('calendarGrid');
+const calendarMonthTitle = document.getElementById('calendarMonthTitle');
+const prevMonthBtn = document.getElementById('prevMonthBtn');
+const nextMonthBtn = document.getElementById('nextMonthBtn');
+const calFilterRadios = document.querySelectorAll('input[name="calFilter"]');
+
+let currentCalDate = new Date();
+let activeCalFilter = 'all';
+
+if (calendarBtn) {
+    calendarBtn.addEventListener('click', () => {
+        currentCalDate = new Date(); 
+        calendarModal.classList.remove('hidden');
+        renderCalendar();
+    });
+}
+
+if (closeCalendarBtn) {
+    closeCalendarBtn.addEventListener('click', () => {
+        calendarModal.classList.add('hidden');
+    });
+}
+
+if (prevMonthBtn) {
+    prevMonthBtn.addEventListener('click', () => {
+        currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+        renderCalendar();
+    });
+}
+
+if (nextMonthBtn) {
+    nextMonthBtn.addEventListener('click', () => {
+        currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+        renderCalendar();
+    });
+}
+
+calFilterRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        activeCalFilter = e.target.value;
+        renderCalendar();
+    });
+});
+
+function renderCalendar() {
+    if (!calendarGrid) return;
+    calendarGrid.innerHTML = '';
+    
+    const year = currentCalDate.getFullYear();
+    const month = currentCalDate.getMonth();
+    
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    if (calendarMonthTitle) calendarMonthTitle.textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay(); 
+    
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-cell other-month';
+        calendarGrid.appendChild(emptyCell);
+    }
+    
+    const dayEvents = {};
+    for (let i = 1; i <= daysInMonth; i++) {
+        dayEvents[i] = [];
+    }
+    
+    conferences.forEach(conf => {
+        const addEventIfMatches = (dateString, typeStr) => {
+            if (!dateString || dateString.toLowerCase() === 'tbd') return;
+            
+            let dt;
+            if (typeStr === 'event') {
+                const ts = parseEventDate(dateString);
+                if (isNaN(ts)) return;
+                dt = new Date(ts);
+            } else {
+                dt = new Date(dateString);
+            }
+            
+            if (isNaN(dt.getTime())) return;
+            
+            if (dt.getFullYear() === year && dt.getMonth() === month) {
+                const day = dt.getDate();
+                if (dayEvents[day]) {
+                    const isDup = dayEvents[day].some(e => e.conf.id === conf.id && e.type === typeStr);
+                    if (!isDup) {
+                        dayEvents[day].push({ conf, type: typeStr });
+                    }
+                }
+            }
+        };
+
+        if (activeCalFilter === 'all' || activeCalFilter === 'deadlines') {
+            addEventIfMatches(conf.deadline, 'deadline');
+            if (conf.abstractDeadline) {
+                addEventIfMatches(conf.abstractDeadline, 'deadline');
+            }
+        }
+        
+        if (activeCalFilter === 'all' || activeCalFilter === 'events') {
+            addEventIfMatches(conf.eventDate, 'event');
+        }
+    });
+    
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'calendar-cell';
+        if (isCurrentMonth && today.getDate() === i) {
+            cell.classList.add('today');
+        }
+        
+        const dateNum = document.createElement('div');
+        dateNum.className = 'date-num';
+        dateNum.textContent = i;
+        cell.appendChild(dateNum);
+        
+        dayEvents[i].forEach(ev => {
+            const chip = document.createElement('div');
+            chip.className = `event-chip type-${ev.type}`;
+            chip.textContent = ev.conf.abbr || ev.conf.name;
+            chip.title = `${ev.type === 'deadline' ? 'Deadline' : 'Event'}: ${ev.conf.name}`;
+            
+            chip.addEventListener('click', (e) => {
+                e.stopPropagation();
+                calendarModal.classList.add('hidden');
+                
+                if (ev.type === 'event' && currentTab !== 'upcoming-events') {
+                    const eventTab = document.querySelector('.main-tab[data-tab="upcoming-events"]');
+                    if (eventTab) eventTab.click();
+                } else if (ev.type === 'deadline' && currentTab === 'upcoming-events') {
+                    const deadTab = document.querySelector('.main-tab[data-tab="upcoming-deadlines"]');
+                    if (deadTab) deadTab.click();
+                }
+                
+                setTimeout(() => {
+                    const card = document.querySelector(`.list-item[data-id="${ev.conf.id}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.transition = 'box-shadow 0.3s';
+                        card.style.boxShadow = '0 0 0 4px var(--accent-primary)';
+                        setTimeout(() => card.style.boxShadow = '', 1500);
+                    }
+                }, 100);
+            });
+            
+            cell.appendChild(chip);
+        });
+        
+        calendarGrid.appendChild(cell);
+    }
+    
+    const totalCells = startingDayOfWeek + daysInMonth;
+    const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
+    for (let i = 0; i < remainingCells; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-cell other-month';
+        calendarGrid.appendChild(emptyCell);
+    }
+}
