@@ -108,30 +108,6 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal-overlay hidden">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Admin Login</h2>
-                <button id="closeLoginBtn" class="icon-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6L18 18"></path>
-                    </svg>
-                </button>
-            </div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="githubToken">GitHub Personal Access Token</label>
-                    <input type="password" id="githubToken" placeholder="ghp_..." required>
-                    <small style="color: var(--text-tertiary); font-size: 0.75rem; margin-top: 0.5rem;">Requires `repo` scope to commit updates to data.json directly.</small>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="primary-btn" id="loginSubmitBtn">Login</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
