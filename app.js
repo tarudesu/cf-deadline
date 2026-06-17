@@ -16,20 +16,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GithubAuthProvider();
 
-// Theme Toggle Logic
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const currentTheme = localStorage.getItem('theme') || 'light';
-if (currentTheme === 'dark') {
-    document.documentElement.classList.add('dark-theme');
-} else {
-    document.documentElement.classList.remove('dark-theme');
-}
-themeToggleBtn.addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark-theme');
-    const isDark = document.documentElement.classList.contains('dark-theme');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-});
-
 // DOM Elements
 const addConferenceBtn = document.getElementById('addConferenceBtn');
 const modalOverlay = document.getElementById('conferenceModal');
