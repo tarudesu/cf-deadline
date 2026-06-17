@@ -351,6 +351,8 @@ h1 {
     align-items: flex-end;
     gap: 0.5rem;
     position: relative;
+    border-left: 1px dashed rgba(0, 0, 0, 0.08);
+    padding-left: 2rem;
 }
 
 .deadline-label {
@@ -1062,7 +1064,9 @@ select:focus {
     justify-content: space-between;
     flex-wrap: wrap;
     padding-top: 0.5rem;
+    padding-left: 0;
     border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    border-left: none;
     gap: 0.5rem;
 }
 
