@@ -578,19 +578,19 @@ function renderConferences() {
         const rankingClass = isSpecialRank ? 'ranking-badge special' : 'ranking-badge';
         const rankingHTML = conf.ranking ? `
             <span class="${rankingClass}">
-                Ranking: ${conf.ranking} 
+                ${conf.ranking} 
             </span>
         ` : '';
 
-        const abstractHTML = conf.abstractDeadline ? `
+        const abstractHTML = `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <span>Abs: <strong>${formatNominalDate(conf.abstractDeadline)}</strong> <span class="sub-timer-val abstract-timer"></span></span>
+                <span>Abs: <strong>${conf.abstractDeadline ? formatNominalDate(conf.abstractDeadline) : 'None'}</strong>${conf.abstractDeadline ? ' <span class="sub-timer-val abstract-timer"></span>' : ''}</span>
             </div>
-        ` : '';
+        `;
 
         const locationHTML = conf.location ? `
             <div class="meta-row">
