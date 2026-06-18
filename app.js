@@ -1028,7 +1028,7 @@ function renderConferences() {
                 </div>
                 <div class="deadline-date">
                     ${displayDateStr}
-                    <span class="passed-flag hidden passed-pill">(Passed)</span>
+                    <span class="passed-flag hidden" style="color: var(--accent-danger);">(Passed)</span>
                 </div>
                 <div class="item-actions">
                     ${urlHTML}
@@ -1149,8 +1149,7 @@ function updateAllCountdowns() {
             const absDistance = abstractUtc - now;
             if (absDistance < 0) {
                 abstractTimerEl.textContent = '(Passed)';
-                abstractTimerEl.classList.add('passed-pill');
-                abstractTimerEl.style.color = '';
+                abstractTimerEl.style.color = 'var(--accent-danger)';
             } else {
                 const absDays = Math.floor(absDistance / (1000 * 60 * 60 * 24));
                 const absHours = Math.floor((absDistance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -1158,7 +1157,6 @@ function updateAllCountdowns() {
                 const absSeconds = Math.floor((absDistance % (1000 * 60)) / 1000);
                 
                 abstractTimerEl.textContent = `(in ${absDays}d ${absHours.toString().padStart(2, '0')}h ${absMinutes.toString().padStart(2, '0')}m ${absSeconds.toString().padStart(2, '0')}s)`;
-                abstractTimerEl.classList.remove('passed-pill');
                 abstractTimerEl.style.color = 'var(--text-tertiary)';
             }
         }

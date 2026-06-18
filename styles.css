@@ -730,17 +730,7 @@ input[type="date"] {
     display: none !important;
 }
 
-.passed-pill {
-    color: var(--accent-danger) !important;
-    font-weight: 600 !important;
-    font-size: 0.75rem !important;
-    padding: 0.15rem 0.45rem !important;
-    background: rgba(239, 68, 68, 0.1) !important;
-    border-radius: 12px !important;
-    margin-left: 0.4rem !important;
-    display: inline-block;
-    letter-spacing: normal !important;
-}
+
 
 .drop-zone:hover, .drop-zone.dragover {
     border-color: var(--accent-primary) !important;
