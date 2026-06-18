@@ -1339,6 +1339,7 @@ function renderCalendar() {
     calendarGrid.className = 'timeline-container';
     
     let hasEvents = false;
+    const today = new Date();
     
     for (let i = 1; i <= daysInMonth; i++) {
         if (dayEvents[i].length === 0) continue;
