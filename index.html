@@ -140,13 +140,13 @@
             </div>
             
             <div class="modal-tabs">
-                <button type="button" id="tabManual" class="modal-tab active">Manual Form</button>
-                <button type="button" id="tabMarkdown" class="modal-tab">Import from Markdown</button>
+                <button type="button" id="tabMarkdown" class="modal-tab active">Import from Markdown</button>
+                <button type="button" id="tabManual" class="modal-tab">Manual Form</button>
                 <button type="button" id="tabJson" class="modal-tab">Import from JSON</button>
             </div>
 
             <!-- Manual Form Section -->
-            <div id="manualFormSection">
+            <div id="manualFormSection" class="hidden">
                 <form id="conferenceForm">
                     <div class="form-row">
                         <div class="form-group flex-2">
@@ -256,7 +256,7 @@
             </div>
 
             <!-- Markdown Import Section -->
-            <div id="markdownImportSection" class="hidden">
+            <div id="markdownImportSection">
                 <div class="markdown-instructions">
                     <p>Use the prompt below with an LLM to search for the conference details. Then, paste the markdown result below to automatically populate the form fields.</p>
                     <div class="prompt-box">

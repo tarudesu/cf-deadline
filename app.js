@@ -196,7 +196,7 @@ const closeModal = () => {
     editingId = null;
     document.getElementById('saveConferenceBtn').textContent = 'Save';
     if (markdownInput) markdownInput.value = '';
-    if (tabManual) tabManual.click();
+    if (tabMarkdown) tabMarkdown.click();
 };
 
 closeModalBtn.addEventListener('click', closeModal);
