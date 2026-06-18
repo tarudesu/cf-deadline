@@ -375,12 +375,20 @@ copyPromptBtn.addEventListener('click', async () => {
     }
 });
 
-// Helper: Format YYYY-MM-DD from Markdown for <input type="date">
+// Helper: Format YYYY-MM-DD or DD-MM-YYYY from Markdown for <input type="date">
 function formatDateTimeForInput(dateStr) {
     if (!dateStr) return '';
     let formatted = dateStr.trim();
-    const match = formatted.match(/^\d{4}-\d{2}-\d{2}/);
-    return match ? match[0] : '';
+    
+    // Check for DD-MM-YYYY or DD/MM/YYYY
+    const dmyMatch = formatted.match(/^(\d{2})[-\/](\d{2})[-\/](\d{4})/);
+    if (dmyMatch) {
+        return `${dmyMatch[3]}-${dmyMatch[2]}-${dmyMatch[1]}`;
+    }
+    
+    // Fallback for YYYY-MM-DD
+    const ymdMatch = formatted.match(/^(\d{4})-\d{2}-\d{2}/);
+    return ymdMatch ? ymdMatch[0] : '';
 }
 
 // Helper: Map Timezone strings to selector values
@@ -461,8 +469,8 @@ parseMarkdownBtn.addEventListener('click', () => {
         // No longer need to append T00:00 because inputs are type="date"
         const startEl = document.getElementById('confEventStart');
         const endEl = document.getElementById('confEventEnd');
-        if (startEl && start) startEl.value = start;
-        if (endEl && end) endEl.value = end;
+        if (startEl && start) startEl.value = formatDateTimeForInput(start);
+        if (endEl && end) endEl.value = formatDateTimeForInput(end);
     }
     if (data.url) document.getElementById('confUrl').value = data.url;
     
