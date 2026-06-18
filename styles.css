@@ -1107,14 +1107,16 @@ select:focus {
 /* Calendar View */
 #calendarView {
     background: var(--panel-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
-    height: 80vh;
+    height: calc(100vh - 14rem);
+    min-height: 600px;
     border: 1px solid var(--border-color);
     overflow: hidden;
     margin-top: 1rem;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .calendar-header {
@@ -1123,50 +1125,62 @@ select:focus {
     align-items: center;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
 }
 
 .calendar-nav {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .calendar-nav h2 {
-    font-size: 1.5rem;
-    min-width: 200px;
+    font-size: 1.6rem;
+    min-width: 220px;
     text-align: center;
     font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
 }
 
 .calendar-filters {
     display: flex;
     gap: 1.5rem;
-    background: rgba(0,0,0,0.03);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
+    background: var(--bg-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: 100px;
+    border: 1px solid var(--border-color);
 }
 
 .calendar-filters label {
-    font-size: 0.9rem;
-    font-weight: 500;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.calendar-filters label:hover {
+    color: var(--text-primary);
 }
 
 .calendar-grid-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    padding: 1rem 0;
-    font-weight: 600;
-    font-size: 0.85rem;
+    padding: 1.2rem 0;
+    font-weight: 700;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     color: var(--text-tertiary);
     border-bottom: 1px solid var(--border-color);
+    background: rgba(250, 250, 250, 0.8);
 }
 
 .calendar-grid {
@@ -1181,15 +1195,20 @@ select:focus {
 
 .calendar-cell {
     background: var(--panel-bg);
-    padding: 0.5rem;
+    padding: 0.6rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    min-height: 120px;
+    gap: 0.3rem;
+    min-height: 140px;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-cell:hover {
+    background: rgba(249, 250, 251, 0.8);
 }
 
 .calendar-cell.other-month {
-    background: rgba(0,0,0,0.02);
+    background: rgba(0,0,0,0.015);
     color: var(--text-tertiary);
 }
 
@@ -1213,32 +1232,35 @@ select:focus {
 
 .event-chip {
     font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: var(--transition);
     font-family: var(--font-main);
-    font-weight: 500;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .event-chip:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
 }
 
 .event-chip.type-deadline {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.08);
     color: #dc2626;
     border: 1px solid rgba(239, 68, 68, 0.2);
+    border-left: 3px solid #ef4444;
 }
 
 .event-chip.type-event {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(59, 130, 246, 0.08);
     color: #2563eb;
     border: 1px solid rgba(59, 130, 246, 0.2);
+    border-left: 3px solid #3b82f6;
 }
 
 /* Comprehensive Responsive Layouts */
