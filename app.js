@@ -1283,7 +1283,7 @@ function renderCalendar() {
                 if (!isNaN(ts)) {
                     fullCalendarInstance.addEvent({
                         id: conf.id,
-                        title: conf.abbr || conf.name,
+                        title: `Submission Deadline: ${conf.abbr || conf.name}`,
                         start: new Date(ts),
                         classNames: ['fc-custom-deadline'],
                         extendedProps: { type: 'deadline' }
@@ -1295,7 +1295,7 @@ function renderCalendar() {
                 if (!isNaN(ts)) {
                     fullCalendarInstance.addEvent({
                         id: conf.id,
-                        title: `(Abs) ${conf.abbr || conf.name}`,
+                        title: `Abstract Deadline: ${conf.abbr || conf.name}`,
                         start: new Date(ts),
                         classNames: ['fc-custom-deadline'],
                         extendedProps: { type: 'deadline' }
@@ -1308,7 +1308,7 @@ function renderCalendar() {
             if (conf.eventStart) {
                 fullCalendarInstance.addEvent({
                     id: conf.id,
-                    title: conf.abbr || conf.name,
+                    title: `Conference Date: ${conf.abbr || conf.name}`,
                     start: conf.eventStart,
                     end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
                     classNames: ['fc-custom-event'],
@@ -1319,7 +1319,7 @@ function renderCalendar() {
                 if (!isNaN(ts)) {
                     fullCalendarInstance.addEvent({
                         id: conf.id,
-                        title: conf.abbr || conf.name,
+                        title: `Conference Date: ${conf.abbr || conf.name}`,
                         start: new Date(ts),
                         classNames: ['fc-custom-event'],
                         extendedProps: { type: 'event' }
