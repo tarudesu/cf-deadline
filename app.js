@@ -628,6 +628,16 @@ onSnapshot(q, (querySnapshot) => {
 });
 
 // Functions - UI
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 async function deleteConference(id) {
     if (!isAdmin) return;
     if (confirm('Are you sure you want to remove this deadline?')) {
@@ -889,11 +899,12 @@ function renderConferences() {
 
         const tzLabel = conf.timezone === 'AoE' ? 'AoE' : (conf.timezone === 'UTC' ? 'UTC' : (conf.timezone === 'Local' ? 'Local' : conf.timezone));
 
-        const isSpecialRank = conf.ranking && (conf.ranking.toUpperCase().includes('A*') || conf.ranking.toUpperCase().includes('CCF A') || conf.ranking.toUpperCase() === 'A');
+        const safeRanking = escapeHTML(conf.ranking);
+        const isSpecialRank = safeRanking && (safeRanking.toUpperCase().includes('A*') || safeRanking.toUpperCase().includes('CCF A') || safeRanking.toUpperCase() === 'A');
         const rankingClass = isSpecialRank ? 'ranking-badge special' : 'ranking-badge';
-        const rankingHTML = conf.ranking ? `
+        const rankingHTML = safeRanking ? `
             <span class="${rankingClass}">
-                ${conf.ranking} 
+                ${safeRanking} 
             </span>
         ` : '';
 
@@ -907,9 +918,10 @@ function renderConferences() {
             </div>
         `;
 
-        const displayMode = conf.mode || 'In-person';
-        const modeText = conf.location ? ` &bull; Mode: <strong>${displayMode}</strong>` : `Mode: <strong>${displayMode}</strong>`;
-        const hasLocOrMode = conf.location || displayMode;
+        const safeLocation = escapeHTML(conf.location);
+        const safeMode = escapeHTML(conf.mode || 'In-person');
+        const modeText = safeLocation ? ` &bull; Mode: <strong>${safeMode}</strong>` : `Mode: <strong>${safeMode}</strong>`;
+        const hasLocOrMode = safeLocation || safeMode;
         
         const locationHTML = hasLocOrMode ? `
             <div class="meta-row">
@@ -917,7 +929,7 @@ function renderConferences() {
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
                 </svg>
-                <span>${conf.location ? `Loc: <strong>${conf.location}</strong>` : ''}${modeText}</span>
+                <span>${safeLocation ? `Loc: <strong>${safeLocation}</strong>` : ''}${modeText}</span>
             </div>
         ` : '';
 
@@ -969,8 +981,9 @@ function renderConferences() {
             item.dataset.trueDeadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
         }
 
-        const urlHTML = conf.url ? `
-            <a href="${conf.url}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
+        const safeUrl = escapeHTML(conf.url);
+        const urlHTML = safeUrl ? `
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>
@@ -991,13 +1004,16 @@ function renderConferences() {
             </button>
         `;
 
+        const safeAbbr = escapeHTML(conf.abbr);
+        const safeName = escapeHTML(conf.name);
+        
         item.innerHTML = `
             <div class="item-left">
                 <div class="item-title-row">
-                    <span class="item-abbr">${conf.abbr}</span>
+                    <span class="item-abbr">${safeAbbr}</span>
                     ${rankingHTML}
                 </div>
-                <div class="item-name">${conf.name}</div>
+                <div class="item-name">${safeName}</div>
                 <div class="item-meta-stacked">
                     ${locationHTML}
                     ${eventDateHTML}
