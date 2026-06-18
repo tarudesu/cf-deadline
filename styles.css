@@ -1169,6 +1169,24 @@ select:focus {
     color: var(--text-primary);
 }
 
+.legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 2px;
+}
+
+.legend-dot.deadline {
+    background: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.legend-dot.event {
+    background: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
 .calendar-grid-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
