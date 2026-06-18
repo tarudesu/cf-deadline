@@ -880,15 +880,33 @@ function renderConferences() {
         let targetUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
         let displayDateStr = formatNominalDate(conf.deadline);
         
+        let displayEventDate = conf.eventDate || '';
+        if (conf.eventStart) {
+            // Need timezone adjustment to prevent date shifting backwards on some locales
+            const startDt = new Date(conf.eventStart + 'T12:00:00');
+            const startStr = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (conf.eventEnd && conf.eventEnd !== conf.eventStart) {
+                const endDt = new Date(conf.eventEnd + 'T12:00:00');
+                const endStr = endDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (startDt.getFullYear() === endDt.getFullYear() && startDt.getMonth() === endDt.getMonth()) {
+                    displayEventDate = `${startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}-${endDt.getDate()}, ${endDt.getFullYear()}`;
+                } else {
+                    displayEventDate = `${startStr} - ${endStr}`;
+                }
+            } else {
+                displayEventDate = startStr;
+            }
+        }
+        
         if (currentTab === 'upcoming-events') {
             if (conf.eventStart) {
                 targetUtc = new Date(conf.eventStart).getTime();
-                displayDateStr = conf.eventDate || conf.eventStart;
+                displayDateStr = displayEventDate;
             } else {
                 let eUtc = parseEventDate(conf.eventDate);
                 if (!isNaN(eUtc)) {
                     targetUtc = eUtc;
-                    displayDateStr = conf.eventDate;
+                    displayDateStr = displayEventDate;
                 }
             }
         }
@@ -937,23 +955,6 @@ function renderConferences() {
                 <span>${safeLocation ? `Loc: <strong>${safeLocation}</strong>` : ''}${modeText}</span>
             </div>
         ` : '';
-
-        let displayEventDate = conf.eventDate || '';
-        if (conf.eventStart) {
-            const startDt = new Date(conf.eventStart);
-            const startStr = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            if (conf.eventEnd && conf.eventEnd !== conf.eventStart) {
-                const endDt = new Date(conf.eventEnd);
-                const endStr = endDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                if (startDt.getFullYear() === endDt.getFullYear() && startDt.getMonth() === endDt.getMonth()) {
-                    displayEventDate = `${startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}-${endDt.getDate()}, ${endDt.getFullYear()}`;
-                } else {
-                    displayEventDate = `${startStr} - ${endStr}`;
-                }
-            } else {
-                displayEventDate = startStr;
-            }
-        }
 
         let eventDateHTML = displayEventDate ? `
             <div class="meta-row">
