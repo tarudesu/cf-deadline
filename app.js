@@ -1480,16 +1480,6 @@ if (deleteAllBtn) {
                 // Delete everything in chunks of 500 (Firestore limit)
                 const toDelete = [...conferences];
                 
-                // Clear UI optimistically
-                conferences = [];
-                renderConferences();
-                
-                // Clear dataset inputs
-                const jsonInputEl = document.getElementById('jsonInput');
-                if (jsonInputEl) jsonInputEl.value = '';
-                const jsonDropTextEl = document.getElementById('jsonDropText');
-                if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
-                
                 let count = 0;
                 let batch = writeBatch(db);
                 
@@ -1508,6 +1498,15 @@ if (deleteAllBtn) {
                 if (count % 500 !== 0) {
                     await batch.commit();
                 }
+                
+                // Clear dataset inputs
+                const jsonInputEl = document.getElementById('jsonInput');
+                if (jsonInputEl) jsonInputEl.value = '';
+                const jsonDropTextEl = document.getElementById('jsonDropText');
+                if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
+                
+                conferences = [];
+                renderConferences();
                 
                 alert("All conferences have been successfully deleted and the dataset is empty.");
             } catch (error) {
