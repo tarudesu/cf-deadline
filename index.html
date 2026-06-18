@@ -301,14 +301,16 @@ Output in code snippet</pre>
             <!-- JSON Import Section -->
             <div id="jsonImportSection" class="hidden">
                 <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="jsonFileInput" class="secondary-btn" style="display: inline-block; cursor: pointer; text-align: center;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.3rem; vertical-align: text-bottom;">
+                    <div id="jsonDropZone" class="drop-zone" style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 2rem 1rem; text-align: center; cursor: pointer; transition: var(--transition); background: var(--bg-primary);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="margin-bottom: 0.5rem;">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg> Select JSON File
-                    </label>
-                    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+                        </svg>
+                        <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 0.25rem;">Click to upload or drag and drop</div>
+                        <div id="jsonDropText" style="font-size: 0.85rem; color: var(--text-tertiary);">JSON files only</div>
+                        <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="jsonInput">Or Paste JSON Array Here</label>

@@ -742,6 +742,11 @@ input[type="date"] {
     letter-spacing: normal !important;
 }
 
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent-primary) !important;
+    background: rgba(43, 90, 245, 0.02) !important;
+}
+
 #loginBtn {
     cursor: pointer;
     background: transparent;

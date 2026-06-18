@@ -209,15 +209,41 @@ if (cancelJsonBtn) {
 }
 
 // JSON File Input Handler
+const jsonDropZone = document.getElementById('jsonDropZone');
+const jsonDropText = document.getElementById('jsonDropText');
+
+function handleJsonFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        jsonInput.value = event.target.result;
+        if (jsonDropText) jsonDropText.textContent = `Loaded: ${file.name}`;
+    };
+    reader.readAsText(file);
+}
+
 if (jsonFileInput) {
-    jsonFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            jsonInput.value = event.target.result;
-        };
-        reader.readAsText(file);
+    jsonFileInput.addEventListener('change', (e) => handleJsonFile(e.target.files[0]));
+}
+
+if (jsonDropZone) {
+    jsonDropZone.addEventListener('click', () => jsonFileInput.click());
+    
+    jsonDropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        jsonDropZone.classList.add('dragover');
+    });
+    
+    jsonDropZone.addEventListener('dragleave', () => {
+        jsonDropZone.classList.remove('dragover');
+    });
+    
+    jsonDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        jsonDropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            handleJsonFile(e.dataTransfer.files[0]);
+        }
     });
 }
 
