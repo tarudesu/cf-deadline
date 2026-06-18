@@ -422,7 +422,22 @@ parseMarkdownBtn.addEventListener('click', () => {
     } else {
         document.getElementById('confMode').value = 'In-person';
     }
-    if (data.eventDate) document.getElementById('confEventDate').value = data.eventDate;
+    if (data.eventDate) {
+        let start = '', end = '';
+        if (data.eventDate.includes('to')) {
+            const parts = data.eventDate.split('to');
+            start = parts[0].trim();
+            end = parts[1].trim();
+        } else {
+            start = data.eventDate.trim();
+        }
+        if (start && start.length === 10) start += 'T00:00';
+        if (end && end.length === 10) end += 'T00:00';
+        const startEl = document.getElementById('confEventStart');
+        const endEl = document.getElementById('confEventEnd');
+        if (startEl && start) startEl.value = start;
+        if (endEl && end) endEl.value = end;
+    }
     if (data.url) document.getElementById('confUrl').value = data.url;
     
     if (data.ranking) {
