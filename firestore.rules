@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /conferences/{conference} {
+      // Allow anyone to read the conferences
+      allow read: if true;
+      
+      // Allow create/update/delete only if the user is authenticated 
+      // AND their token contains the correct admin claim or github username
+      allow create, update, delete: if request.auth != null && 
+        (
+          // If using a custom claim:
+          request.auth.token.admin == true || 
+          // Or matching the GitHub username/email directly from the token:
+          request.auth.token.name == 'tarudesu' ||
+          request.auth.token.email == 'tarudesu@users.noreply.github.com'
+        );
+    }
+  }
+}

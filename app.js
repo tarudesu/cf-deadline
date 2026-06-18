@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -632,9 +632,12 @@ async function deleteConference(id) {
     if (confirm('Are you sure you want to remove this deadline?')) {
         try {
             await deleteDoc(doc(db, "conferences", id));
-        } catch (e) {
-            console.error("Error deleting document: ", e);
-            alert("Failed to delete conference.");
+            // Success! The onSnapshot listener will update the UI automatically.
+        } catch (error) {
+            console.error("Error deleting document: ", error);
+            const errCode = error.code || "Unknown";
+            const errMsg = error.message || "No error message provided";
+            alert(`Failed to delete conference: ${errCode} - ${errMsg}`);
         }
     }
 }
@@ -1482,8 +1485,9 @@ if (deleteAllBtn) {
         const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
         if (confirmDelete) {
             try {
-                // Delete everything in chunks of 500 (Firestore limit)
                 const toDelete = [...conferences];
+                const preDeleteCount = toDelete.length;
+                console.log(`Starting Delete All: Pre-delete count is ${preDeleteCount}`);
                 
                 let count = 0;
                 let batch = writeBatch(db);
@@ -1504,19 +1508,31 @@ if (deleteAllBtn) {
                     await batch.commit();
                 }
                 
+                // Verification step
+                const freshSnapshot = await getDocs(collection(db, "conferences"));
+                const postDeleteCount = freshSnapshot.size;
+                console.log(`Verification: Post-delete count is ${postDeleteCount} (expected 0)`);
+                
                 // Clear dataset inputs
                 const jsonInputEl = document.getElementById('jsonInput');
                 if (jsonInputEl) jsonInputEl.value = '';
                 const jsonDropTextEl = document.getElementById('jsonDropText');
                 if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
                 
+                // Clear UI only after success
                 conferences = [];
                 renderConferences();
                 
-                alert("All conferences have been successfully deleted and the dataset is empty.");
+                if (postDeleteCount === 0) {
+                    alert("All conferences have been successfully deleted and verified empty.");
+                } else {
+                    alert(`Delete completed, but verification found ${postDeleteCount} docs still remaining!`);
+                }
             } catch (error) {
-                console.error("Error deleting all conferences:", error);
-                alert("Failed to delete all conferences entirely. Please check your permissions.");
+                console.error("Error deleting all conferences (FULL TRACE):", error);
+                const errCode = error.code || "Unknown";
+                const errMsg = error.message || "No error message provided";
+                alert(`Failed to delete all conferences entirely.\nCode: ${errCode}\nMessage: ${errMsg}`);
             }
         }
     });
