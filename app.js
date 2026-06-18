@@ -1271,16 +1271,31 @@ function renderCalendar() {
         }
         
         if (showEvents) {
-            if (conf.eventStart) {
+            if (conf.eventStart && conf.eventStart.toLowerCase() !== 'tbd') {
+                let startString = conf.eventStart.split('T')[0];
+                let endString = null;
+                
+                if (conf.eventEnd && conf.eventEnd.toLowerCase() !== 'tbd') {
+                    const endTs = Date.parse(conf.eventEnd);
+                    if (!isNaN(endTs)) {
+                        const endDt = new Date(endTs);
+                        endDt.setDate(endDt.getDate() + 1); // FullCalendar end dates are exclusive
+                        const yyyy = endDt.getFullYear();
+                        const mm = String(endDt.getMonth() + 1).padStart(2, '0');
+                        const dd = String(endDt.getDate()).padStart(2, '0');
+                        endString = `${yyyy}-${mm}-${dd}`;
+                    }
+                }
+                
                 eventsArray.push({
                     id: conf.id + '_ev',
                     title: conf.abbr || conf.name,
-                    start: conf.eventStart.split('T')[0],
-                    end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
+                    start: startString,
+                    end: endString,
                     classNames: ['fc-custom-event'],
                     extendedProps: { type: 'event', confId: conf.id }
                 });
-            } else if (conf.eventDate) {
+            } else if (conf.eventDate && conf.eventDate.toLowerCase() !== 'tbd') {
                 const ts = parseEventDate(conf.eventDate);
                 if (!isNaN(ts)) {
                     const dt = new Date(ts);
