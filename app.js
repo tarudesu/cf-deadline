@@ -881,10 +881,15 @@ function renderConferences() {
         let displayDateStr = formatNominalDate(conf.deadline);
         
         if (currentTab === 'upcoming-events') {
-            let eUtc = parseEventDate(conf.eventDate);
-            if (!isNaN(eUtc)) {
-                targetUtc = eUtc;
-                displayDateStr = conf.eventDate;
+            if (conf.eventStart) {
+                targetUtc = new Date(conf.eventStart).getTime();
+                displayDateStr = conf.eventDate || conf.eventStart;
+            } else {
+                let eUtc = parseEventDate(conf.eventDate);
+                if (!isNaN(eUtc)) {
+                    targetUtc = eUtc;
+                    displayDateStr = conf.eventDate;
+                }
             }
         }
         
