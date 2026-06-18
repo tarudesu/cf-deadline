@@ -174,18 +174,10 @@ onAuthStateChanged(auth, async (user) => {
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
-        if (typeof deleteAllBtn !== 'undefined' && deleteAllBtn && currentTab === 'all') {
-            deleteAllBtn.style.display = 'inline-flex';
-            deleteAllBtn.classList.remove('hidden');
-        }
         renderConferences(); // re-render to show delete buttons
     } else {
         isAdmin = false;
         adminControls.classList.add('hidden');
-        if (typeof deleteAllBtn !== 'undefined' && deleteAllBtn) {
-            deleteAllBtn.style.display = 'none';
-            deleteAllBtn.classList.add('hidden');
-        }
         renderConferences(); // re-render to hide delete buttons
     }
 });
@@ -793,25 +785,13 @@ function renderConferences() {
     }
     const exportDataBtn = document.getElementById('exportDataBtn');
     const addCalendarBtn = document.getElementById('addCalendarBtn');
-    const deleteAllBtn = document.getElementById('deleteAllBtn');
     if (exportDataBtn) {
         if (currentTab === 'all') {
             exportDataBtn.classList.remove('hidden');
             if (addCalendarBtn) addCalendarBtn.classList.remove('hidden');
-            if (deleteAllBtn && isAdmin) {
-                deleteAllBtn.style.display = 'inline-flex';
-                deleteAllBtn.classList.remove('hidden');
-            } else if (deleteAllBtn) {
-                deleteAllBtn.style.display = 'none';
-                deleteAllBtn.classList.add('hidden');
-            }
         } else {
             exportDataBtn.classList.add('hidden');
             if (addCalendarBtn) addCalendarBtn.classList.add('hidden');
-            if (deleteAllBtn) {
-                deleteAllBtn.style.display = 'none';
-                deleteAllBtn.classList.add('hidden');
-            }
         }
     }
 
@@ -1498,76 +1478,4 @@ if (addCalendarBtn) {
     });
 }
 
-// --- Delete All Logic ---
-const deleteAllBtn = document.getElementById('deleteAllBtn');
-if (deleteAllBtn) {
-    deleteAllBtn.addEventListener('click', async () => {
-        if (!isAdmin) return;
-        
-        const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
-        if (confirmDelete) {
-            try {
-                const toDelete = [...conferences];
-                const preDeleteCount = toDelete.length;
-                console.log(`[Delete All] Starting. Pre-delete count: ${preDeleteCount}`);
-                
-                if (preDeleteCount === 0) {
-                    alert('No conferences to delete.');
-                    return;
-                }
-                
-                // Delete in chunks of 500 (Firestore batch limit)
-                let count = 0;
-                let batch = writeBatch(db);
-                
-                for (const conf of toDelete) {
-                    if (conf.id) {
-                        batch.delete(doc(db, "conferences", conf.id));
-                        count++;
-                        
-                        if (count % 500 === 0) {
-                            await batch.commit();
-                            console.log(`[Delete All] Committed batch of 500 (total so far: ${count})`);
-                            batch = writeBatch(db);
-                        }
-                    }
-                }
-                
-                // Commit remaining
-                if (count % 500 !== 0) {
-                    await batch.commit();
-                    console.log(`[Delete All] Committed final batch (total deleted: ${count})`);
-                }
-                
-                // CRITICAL VERIFICATION: Read the collection back from the server
-                // to confirm the deletes actually persisted (not just local cache).
-                const freshSnapshot = await getDocs(collection(db, "conferences"));
-                const postDeleteCount = freshSnapshot.size;
-                console.log(`[Delete All] Verification — docs remaining on server: ${postDeleteCount} (expected 0)`);
-                
-                if (postDeleteCount > 0) {
-                    // Deletes were silently rejected by Firestore rules
-                    alert(`Delete FAILED — ${postDeleteCount} documents still exist on the server.\n\nThis means your Firestore Security Rules do not allow deletes.\nPlease update your rules in the Firebase Console.`);
-                    return;
-                }
-                
-                // Clear dataset inputs
-                const jsonInputEl = document.getElementById('jsonInput');
-                if (jsonInputEl) jsonInputEl.value = '';
-                const jsonDropTextEl = document.getElementById('jsonDropText');
-                if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
-                
-                // Clear UI only after verified success
-                conferences = [];
-                renderConferences();
-                
-                alert('All conferences have been successfully deleted and verified empty.');
-            } catch (error) {
-                console.error('[Delete All] Error (full object):', error);
-                const errCode = error.code || 'Unknown';
-                const errMsg = error.message || 'No error message provided';
-                alert(`Failed to delete all conferences.\nCode: ${errCode}\nMessage: ${errMsg}`);
-            }
-        }
-    });
-}
+
