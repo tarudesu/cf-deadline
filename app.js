@@ -1201,10 +1201,13 @@ if (aoeClockDisplay) {
     setInterval(() => {
         const now = new Date();
         const aoeTime = new Date(now.getTime() - (12 * 60 * 60 * 1000));
+        const yyyy = aoeTime.getUTCFullYear();
+        const mo = String(aoeTime.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(aoeTime.getUTCDate()).padStart(2, '0');
         const hh = String(aoeTime.getUTCHours()).padStart(2, '0');
         const mm = String(aoeTime.getUTCMinutes()).padStart(2, '0');
         const ss = String(aoeTime.getUTCSeconds()).padStart(2, '0');
         
-        aoeClockDisplay.textContent = `AoE: ${hh}:${mm}:${ss}`;
+        aoeClockDisplay.textContent = `AoE: ${yyyy}-${mo}-${dd} ${hh}:${mm}:${ss}`;
     }, 1000);
 }
