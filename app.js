@@ -408,6 +408,21 @@ conferenceForm.addEventListener('submit', async (e) => {
     const deadline = document.getElementById('confDate').value;
     const timezone = document.getElementById('confTimezone').value;
 
+    if (!abbr) {
+        alert("Abbreviation is required!");
+        return;
+    }
+
+    const isDuplicate = conferences.some(c => 
+        c.abbr && c.abbr.toLowerCase() === abbr.toLowerCase() && 
+        c.id !== editingId
+    );
+
+    if (isDuplicate) {
+        alert(`A conference with the abbreviation "${abbr}" already exists!`);
+        return;
+    }
+
     const newConf = {
         name,
         ranking,
