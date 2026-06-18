@@ -610,9 +610,15 @@ function renderConferences() {
         showOldToggle.style.display = (currentTab === 'past' || currentTab === 'all') ? 'flex' : 'none';
     }
     const exportDataBtn = document.getElementById('exportDataBtn');
+    const addCalendarBtn = document.getElementById('addCalendarBtn');
     if (exportDataBtn) {
-        if (currentTab === 'all') exportDataBtn.classList.remove('hidden');
-        else exportDataBtn.classList.add('hidden');
+        if (currentTab === 'all') {
+            exportDataBtn.classList.remove('hidden');
+            if (addCalendarBtn) addCalendarBtn.classList.remove('hidden');
+        } else {
+            exportDataBtn.classList.add('hidden');
+            if (addCalendarBtn) addCalendarBtn.classList.add('hidden');
+        }
     }
 
     const now = new Date().getTime();
@@ -1213,9 +1219,9 @@ if (aoeClockDisplay) {
 }
 
 // --- Sync to Google Calendar (ICS Download) ---
-const syncGcalBtn = document.getElementById('syncGcalBtn');
-if (syncGcalBtn) {
-    syncGcalBtn.addEventListener('click', (e) => {
+const addCalendarBtn = document.getElementById('addCalendarBtn');
+if (addCalendarBtn) {
+    addCalendarBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (!conferences || conferences.length === 0) {
             alert("No conferences to sync!");
