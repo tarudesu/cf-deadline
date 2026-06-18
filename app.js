@@ -854,7 +854,7 @@ function renderConferences() {
                 </div>
                 <div class="deadline-date">
                     ${displayDateStr}
-                    <span class="passed-flag hidden" style="color: var(--accent-danger); font-weight: 700; margin-left: 0.25rem;">(Passed)</span>
+                    <span class="passed-flag hidden" style="color: var(--accent-danger); font-weight: bold; font-size: 0.75rem; padding: 0.15rem 0.5rem; background: rgba(239, 68, 68, 0.1); border-radius: 12px; margin-left: 0.5rem; display: inline-block;">(Passed)</span>
                 </div>
                 <div class="item-actions">
                     ${urlHTML}
