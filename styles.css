@@ -116,14 +116,14 @@ body {
 .floating-admin-controls {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 0.75rem;
-    border-radius: var(--radius-md);
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.8rem 1.2rem;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     width: max-content;
 }
 
