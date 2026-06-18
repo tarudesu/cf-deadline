@@ -622,10 +622,7 @@ onSnapshot(q, (querySnapshot) => {
     updateRankingFilterOptions();
     renderConferences();
     
-    // Auto-sync calendar if it is the active tab
-    if (currentTab === 'calendar' && typeof renderCalendar === 'function') {
-        renderCalendar();
-    }
+
     
     if (!countdownInterval) {
         startCountdownTimer();
@@ -720,7 +717,6 @@ const showOldCheck = document.getElementById('showOldCheck');
 if (showOldCheck) showOldCheck.addEventListener('change', renderConferences);
 
 const conferencesListEl = document.getElementById('conferencesList');
-const calendarViewEl = document.getElementById('calendarView');
 const filtersBarEl = document.querySelector('.filters-bar');
 
 mainTabs.forEach(tab => {
@@ -729,21 +725,9 @@ mainTabs.forEach(tab => {
         tab.classList.add('active');
         currentTab = tab.dataset.tab;
         
-        if (currentTab === 'calendar') {
-            conferencesListEl.classList.add('hidden');
-            filtersBarEl.classList.add('hidden');
-            calendarViewEl.classList.remove('hidden');
-            
-            // Re-render calendar to ensure it's up to date
-            if (typeof renderCalendar === 'function') {
-                renderCalendar();
-            }
-        } else {
-            calendarViewEl.classList.add('hidden');
-            conferencesListEl.classList.remove('hidden');
-            filtersBarEl.classList.remove('hidden');
-            renderConferences();
-        }
+        conferencesListEl.classList.remove('hidden');
+        filtersBarEl.classList.remove('hidden');
+        renderConferences();
     });
 });
 
@@ -1220,156 +1204,6 @@ function updateAllCountdowns() {
             }
         }
     });
-}
-
-// --- Calendar View Logic ---
-const filterDeadlines = document.getElementById('calFilterDeadlines');
-const filterAbstracts = document.getElementById('calFilterAbstracts');
-const filterEvents = document.getElementById('calFilterEvents');
-
-if (filterDeadlines) {
-    filterDeadlines.addEventListener('change', renderCalendar);
-}
-if (filterAbstracts) {
-    filterAbstracts.addEventListener('change', renderCalendar);
-}
-if (filterEvents) {
-    filterEvents.addEventListener('change', renderCalendar);
-}
-
-let fullCalendarInstance = null;
-
-function renderCalendar() {
-    const calendarEl = document.getElementById('calendar');
-    if (!calendarEl) return;
-    
-    const showDeadlines = document.getElementById('calFilterDeadlines')?.checked ?? true;
-    const showAbstracts = document.getElementById('calFilterAbstracts')?.checked ?? true;
-    const showEvents = document.getElementById('calFilterEvents')?.checked ?? true;
-    
-    const eventsArray = [];
-    
-    conferences.forEach(conf => {
-        if (showDeadlines && conf.deadline) {
-            eventsArray.push({
-                id: conf.id + '_dl',
-                title: conf.abbr || conf.name,
-                start: conf.deadline.split('T')[0],
-                classNames: ['fc-custom-deadline'],
-                extendedProps: { type: 'deadline', confId: conf.id }
-            });
-        }
-        if (showAbstracts && conf.abstractDeadline) {
-            eventsArray.push({
-                id: conf.id + '_abs',
-                title: conf.abbr || conf.name,
-                start: conf.abstractDeadline.split('T')[0],
-                classNames: ['fc-custom-abstract'],
-                extendedProps: { type: 'deadline', confId: conf.id }
-            });
-        }
-        
-        if (showEvents) {
-            console.log(`[CAL DEBUG] conf="${conf.abbr||conf.name}" eventStart="${conf.eventStart}" eventEnd="${conf.eventEnd}" eventDate="${conf.eventDate}"`);
-            if (conf.eventStart && conf.eventStart.toLowerCase() !== 'tbd') {
-                let startString = conf.eventStart.split('T')[0];
-                let endString = null;
-                
-                if (conf.eventEnd && conf.eventEnd.toLowerCase() !== 'tbd') {
-                    const endMatch = conf.eventEnd.match(/^(\d{4})-(\d{2})-(\d{2})/);
-                    if (endMatch) {
-                        const endDt = new Date(parseInt(endMatch[1]), parseInt(endMatch[2]) - 1, parseInt(endMatch[3]), 12, 0, 0);
-                        endDt.setDate(endDt.getDate() + 1); // FullCalendar end dates are exclusive
-                        const yyyy = endDt.getFullYear();
-                        const mm = String(endDt.getMonth() + 1).padStart(2, '0');
-                        const dd = String(endDt.getDate()).padStart(2, '0');
-                        endString = `${yyyy}-${mm}-${dd}`;
-                    } else {
-                        const endTs = Date.parse(conf.eventEnd);
-                        if (!isNaN(endTs)) {
-                            const endDt = new Date(endTs);
-                            endDt.setDate(endDt.getDate() + 1);
-                            const yyyy = endDt.getFullYear();
-                            const mm = String(endDt.getMonth() + 1).padStart(2, '0');
-                            const dd = String(endDt.getDate()).padStart(2, '0');
-                            endString = `${yyyy}-${mm}-${dd}`;
-                        }
-                    }
-                }
-                
-                console.log(`[CAL DEBUG]   -> PUSH event: start="${startString}" end="${endString}"`);
-                eventsArray.push({
-                    id: conf.id + '_ev',
-                    title: conf.abbr || conf.name,
-                    start: startString,
-                    end: endString,
-                    classNames: ['fc-custom-event'],
-                    extendedProps: { type: 'event', confId: conf.id }
-                });
-            } else if (conf.eventDate && conf.eventDate.toLowerCase() !== 'tbd') {
-                const ts = parseEventDate(conf.eventDate);
-                console.log(`[CAL DEBUG]   -> parseEventDate("${conf.eventDate}") = ${ts} (${isNaN(ts) ? 'NaN' : new Date(ts).toISOString()})`);
-                if (!isNaN(ts)) {
-                    const dt = new Date(ts);
-                    const yyyy = dt.getFullYear();
-                    const mm = String(dt.getMonth() + 1).padStart(2, '0');
-                    const dd = String(dt.getDate()).padStart(2, '0');
-                    
-                    eventsArray.push({
-                        id: conf.id + '_ev',
-                        title: conf.abbr || conf.name,
-                        start: `${yyyy}-${mm}-${dd}`,
-                        classNames: ['fc-custom-event'],
-                        extendedProps: { type: 'event', confId: conf.id }
-                    });
-                }
-            } else {
-                console.log(`[CAL DEBUG]   -> SKIPPED (no eventStart or eventDate)`);
-            }
-        }
-    });
-    
-    if (!fullCalendarInstance) {
-        fullCalendarInstance = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            height: 'auto',
-            displayEventTime: false,
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,listMonth'
-            },
-            events: eventsArray,
-            eventClick: function(info) {
-                const evType = info.event.extendedProps.type;
-                const confId = info.event.extendedProps.confId;
-                
-                let targetTabSelector = '.main-tab[data-tab="all"]';
-                if (evType === 'event') {
-                    targetTabSelector = '.main-tab[data-tab="upcoming-events"]';
-                } else if (evType === 'deadline') {
-                    targetTabSelector = '.main-tab[data-tab="upcoming-deadlines"]';
-                }
-                
-                const tabBtn = document.querySelector(targetTabSelector);
-                if (tabBtn) tabBtn.click();
-                
-                setTimeout(() => {
-                    const card = document.querySelector(`.list-item[data-id="${confId}"]`);
-                    if (card) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.style.transition = 'box-shadow 0.3s';
-                        card.style.boxShadow = '0 0 0 4px var(--accent-primary)';
-                        setTimeout(() => card.style.boxShadow = '', 1500);
-                    }
-                }, 100);
-            }
-        });
-        fullCalendarInstance.render();
-    } else {
-        fullCalendarInstance.removeAllEvents();
-        fullCalendarInstance.addEventSource(eventsArray);
-    }
 }
 
 // --- Export Logic ---
