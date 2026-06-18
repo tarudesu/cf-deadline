@@ -81,7 +81,7 @@ body {
 .floating-controls-wrapper {
     position: fixed;
     bottom: 2rem;
-    right: 2rem;
+    right: 4rem;
     z-index: 100;
     display: flex;
     flex-direction: column;
