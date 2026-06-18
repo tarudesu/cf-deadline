@@ -1335,28 +1335,48 @@ function renderCalendar() {
         }
     });
     
-    const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    // Build timeline view
+    calendarGrid.className = 'timeline-container';
+    
+    let hasEvents = false;
     
     for (let i = 1; i <= daysInMonth; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'calendar-cell';
-        if (isCurrentMonth && today.getDate() === i) {
-            cell.classList.add('today');
+        if (dayEvents[i].length === 0) continue;
+        
+        hasEvents = true;
+        
+        const node = document.createElement('div');
+        node.className = 'timeline-node';
+        
+        const dateMarker = document.createElement('div');
+        dateMarker.className = 'timeline-date';
+        
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const dt = new Date(year, month, i);
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === i;
+        
+        if (isToday) {
+            dateMarker.classList.add('today');
         }
         
-        const dateNum = document.createElement('div');
-        dateNum.className = 'date-num';
-        dateNum.textContent = i;
-        cell.appendChild(dateNum);
+        dateMarker.innerHTML = `
+            <span class="day-name">${dayNames[dt.getDay()]}</span>
+            <span class="day-num">${i}</span>
+        `;
+        node.appendChild(dateMarker);
+        
+        const contentArea = document.createElement('div');
+        contentArea.className = 'timeline-content';
         
         dayEvents[i].forEach(ev => {
-            const chip = document.createElement('div');
-            chip.className = `event-chip type-${ev.type}`;
-            chip.textContent = ev.conf.abbr || ev.conf.name;
-            chip.title = `${ev.type === 'deadline' ? 'Deadline' : 'Event'}: ${ev.conf.name}`;
+            const card = document.createElement('div');
+            card.className = `timeline-card type-${ev.type}`;
+            card.innerHTML = `
+                <div class="card-title">${ev.conf.abbr || ev.conf.name}</div>
+                <div class="card-type">${ev.type === 'deadline' ? 'Deadline' : 'Event'}</div>
+            `;
             
-            chip.addEventListener('click', (e) => {
+            card.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
                 let targetTabSelector = '.main-tab[data-tab="all"]';
@@ -1370,28 +1390,36 @@ function renderCalendar() {
                 if (tabBtn) tabBtn.click();
                 
                 setTimeout(() => {
-                    const card = document.querySelector(`.list-item[data-id="${ev.conf.id}"]`);
-                    if (card) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.style.transition = 'box-shadow 0.3s';
-                        card.style.boxShadow = '0 0 0 4px var(--accent-primary)';
-                        setTimeout(() => card.style.boxShadow = '', 1500);
+                    const listItem = document.querySelector(`.list-item[data-id="${ev.conf.id}"]`);
+                    if (listItem) {
+                        listItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        listItem.style.transition = 'box-shadow 0.3s';
+                        listItem.style.boxShadow = '0 0 0 4px var(--accent-primary)';
+                        setTimeout(() => listItem.style.boxShadow = '', 1500);
                     }
                 }, 100);
             });
             
-            cell.appendChild(chip);
+            contentArea.appendChild(card);
         });
         
-        calendarGrid.appendChild(cell);
+        node.appendChild(contentArea);
+        calendarGrid.appendChild(node);
     }
     
-    const totalCells = startingDayOfWeek + daysInMonth;
-    const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
-    for (let i = 0; i < remainingCells; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'calendar-cell other-month';
-        calendarGrid.appendChild(emptyCell);
+    if (!hasEvents) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'timeline-empty';
+        emptyState.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <p>No events or deadlines this month.</p>
+        `;
+        calendarGrid.appendChild(emptyState);
     }
 }
 
