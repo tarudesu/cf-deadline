@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, writeBatch, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -162,6 +162,15 @@ onAuthStateChanged(auth, async (user) => {
         authStatusMessage.classList.add('hidden');
         authStatusMessage.textContent = '';
         document.body.style.overflow = '';
+
+        // Log the auth token so we can debug Firestore rules
+        try {
+            const idTokenResult = await user.getIdTokenResult();
+            console.log('Firebase Auth Token Claims:', JSON.stringify(idTokenResult.claims, null, 2));
+            console.log('Auth UID:', user.uid);
+        } catch (tokenErr) {
+            console.warn('Could not fetch ID token for debugging:', tokenErr);
+        }
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
@@ -631,13 +640,26 @@ async function deleteConference(id) {
     if (!isAdmin) return;
     if (confirm('Are you sure you want to remove this deadline?')) {
         try {
+            console.log(`Deleting conference with id: ${id}`);
             await deleteDoc(doc(db, "conferences", id));
-            // Success! The onSnapshot listener will update the UI automatically.
+            
+            // CRITICAL: Verify the delete actually persisted on the server.
+            // Firestore SDK applies deletes optimistically to local cache and
+            // does NOT throw even if security rules deny the write. The doc
+            // just silently reappears via onSnapshot when the server rejects it.
+            // So we must read it back to confirm.
+            const verifySnap = await getDoc(doc(db, "conferences", id));
+            if (verifySnap.exists()) {
+                console.error('DELETE FAILED: Document still exists on server after deleteDoc!', id);
+                alert('Delete failed — the document still exists on the server.\n\nThis usually means your Firestore Security Rules do not allow deletes. Please check the rules in the Firebase Console.');
+            } else {
+                console.log(`Delete verified: document ${id} no longer exists on server.`);
+            }
         } catch (error) {
-            console.error("Error deleting document: ", error);
+            console.error("Error deleting document (full object): ", error);
             const errCode = error.code || "Unknown";
             const errMsg = error.message || "No error message provided";
-            alert(`Failed to delete conference: ${errCode} - ${errMsg}`);
+            alert(`Failed to delete conference:\n${errCode} — ${errMsg}`);
         }
     }
 }
@@ -1487,8 +1509,14 @@ if (deleteAllBtn) {
             try {
                 const toDelete = [...conferences];
                 const preDeleteCount = toDelete.length;
-                console.log(`Starting Delete All: Pre-delete count is ${preDeleteCount}`);
+                console.log(`[Delete All] Starting. Pre-delete count: ${preDeleteCount}`);
                 
+                if (preDeleteCount === 0) {
+                    alert('No conferences to delete.');
+                    return;
+                }
+                
+                // Delete in chunks of 500 (Firestore batch limit)
                 let count = 0;
                 let batch = writeBatch(db);
                 
@@ -1499,19 +1527,29 @@ if (deleteAllBtn) {
                         
                         if (count % 500 === 0) {
                             await batch.commit();
+                            console.log(`[Delete All] Committed batch of 500 (total so far: ${count})`);
                             batch = writeBatch(db);
                         }
                     }
                 }
                 
+                // Commit remaining
                 if (count % 500 !== 0) {
                     await batch.commit();
+                    console.log(`[Delete All] Committed final batch (total deleted: ${count})`);
                 }
                 
-                // Verification step
+                // CRITICAL VERIFICATION: Read the collection back from the server
+                // to confirm the deletes actually persisted (not just local cache).
                 const freshSnapshot = await getDocs(collection(db, "conferences"));
                 const postDeleteCount = freshSnapshot.size;
-                console.log(`Verification: Post-delete count is ${postDeleteCount} (expected 0)`);
+                console.log(`[Delete All] Verification — docs remaining on server: ${postDeleteCount} (expected 0)`);
+                
+                if (postDeleteCount > 0) {
+                    // Deletes were silently rejected by Firestore rules
+                    alert(`Delete FAILED — ${postDeleteCount} documents still exist on the server.\n\nThis means your Firestore Security Rules do not allow deletes.\nPlease update your rules in the Firebase Console.`);
+                    return;
+                }
                 
                 // Clear dataset inputs
                 const jsonInputEl = document.getElementById('jsonInput');
@@ -1519,20 +1557,16 @@ if (deleteAllBtn) {
                 const jsonDropTextEl = document.getElementById('jsonDropText');
                 if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
                 
-                // Clear UI only after success
+                // Clear UI only after verified success
                 conferences = [];
                 renderConferences();
                 
-                if (postDeleteCount === 0) {
-                    alert("All conferences have been successfully deleted and verified empty.");
-                } else {
-                    alert(`Delete completed, but verification found ${postDeleteCount} docs still remaining!`);
-                }
+                alert('All conferences have been successfully deleted and verified empty.');
             } catch (error) {
-                console.error("Error deleting all conferences (FULL TRACE):", error);
-                const errCode = error.code || "Unknown";
-                const errMsg = error.message || "No error message provided";
-                alert(`Failed to delete all conferences entirely.\nCode: ${errCode}\nMessage: ${errMsg}`);
+                console.error('[Delete All] Error (full object):', error);
+                const errCode = error.code || 'Unknown';
+                const errMsg = error.message || 'No error message provided';
+                alert(`Failed to delete all conferences.\nCode: ${errCode}\nMessage: ${errMsg}`);
             }
         }
     });
