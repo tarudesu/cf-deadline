@@ -1389,9 +1389,9 @@ if (aoeClockDisplay) {
         const ss = String(aoeTime.getUTCSeconds()).padStart(2, '0');
         
         aoeClockDisplay.innerHTML = `
-            <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                <span style="font-size: 0.75rem; color: var(--text-tertiary); font-weight: 500;">AoE Date: ${yyyy}-${mo}-${dd}</span>
-                <span style="font-size: 1.1rem; color: var(--accent-primary); font-weight: 700;">${hh}:${mm}:${ss}</span>
+            <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                <span style="font-size: 0.75rem; color: var(--text-tertiary); font-weight: 500; line-height: 1;">AoE Date: ${yyyy}-${mo}-${dd}</span>
+                <span style="font-size: 1.15rem; color: var(--accent-primary); font-weight: 700; line-height: 1;">${hh}:${mm}:${ss}</span>
             </div>
         `;
     }, 1000);
