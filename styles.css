@@ -1286,17 +1286,19 @@ select:focus {
 }
 
 .fc-custom-deadline {
-    background: rgba(239, 68, 68, 0.08) !important;
-    color: #dc2626 !important;
-    border: 1px solid rgba(239, 68, 68, 0.2) !important;
-    border-left: 3px solid #ef4444 !important;
+    background: var(--accent-danger) !important;
+    color: white !important;
+    border: none !important;
 }
 
 .fc-custom-event {
-    background: rgba(59, 130, 246, 0.08) !important;
-    color: #2563eb !important;
-    border: 1px solid rgba(59, 130, 246, 0.2) !important;
-    border-left: 3px solid #3b82f6 !important;
+    background: var(--accent-secondary) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.fc-event-main {
+    color: white !important; /* Forces FullCalendar's inner wrapper to use white text */
 }
 
 /* Comprehensive Responsive Layouts */
