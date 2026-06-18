@@ -1291,6 +1291,12 @@ select:focus {
     border: none !important;
 }
 
+.fc-custom-abstract {
+    background: var(--accent-warning) !important;
+    color: white !important;
+    border: none !important;
+}
+
 .fc-custom-event {
     background: var(--accent-secondary) !important;
     color: white !important;

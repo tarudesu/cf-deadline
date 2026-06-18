@@ -1225,10 +1225,14 @@ function updateAllCountdowns() {
 
 // --- Calendar View Logic ---
 const filterDeadlines = document.getElementById('calFilterDeadlines');
+const filterAbstracts = document.getElementById('calFilterAbstracts');
 const filterEvents = document.getElementById('calFilterEvents');
 
 if (filterDeadlines) {
     filterDeadlines.addEventListener('change', renderCalendar);
+}
+if (filterAbstracts) {
+    filterAbstracts.addEventListener('change', renderCalendar);
 }
 if (filterEvents) {
     filterEvents.addEventListener('change', renderCalendar);
@@ -1241,37 +1245,36 @@ function renderCalendar() {
     if (!calendarEl) return;
     
     const showDeadlines = document.getElementById('calFilterDeadlines')?.checked ?? true;
+    const showAbstracts = document.getElementById('calFilterAbstracts')?.checked ?? true;
     const showEvents = document.getElementById('calFilterEvents')?.checked ?? true;
     
     const eventsArray = [];
     
     conferences.forEach(conf => {
-        if (showDeadlines) {
-            if (conf.deadline) {
-                eventsArray.push({
-                    id: conf.id + '_dl',
-                    title: `Submission Deadline: ${conf.abbr || conf.name}`,
-                    start: conf.deadline.split('T')[0],
-                    classNames: ['fc-custom-deadline'],
-                    extendedProps: { type: 'deadline', confId: conf.id }
-                });
-            }
-            if (conf.abstractDeadline) {
-                eventsArray.push({
-                    id: conf.id + '_abs',
-                    title: `Abstract Deadline: ${conf.abbr || conf.name}`,
-                    start: conf.abstractDeadline.split('T')[0],
-                    classNames: ['fc-custom-deadline'],
-                    extendedProps: { type: 'deadline', confId: conf.id }
-                });
-            }
+        if (showDeadlines && conf.deadline) {
+            eventsArray.push({
+                id: conf.id + '_dl',
+                title: conf.abbr || conf.name,
+                start: conf.deadline.split('T')[0],
+                classNames: ['fc-custom-deadline'],
+                extendedProps: { type: 'deadline', confId: conf.id }
+            });
+        }
+        if (showAbstracts && conf.abstractDeadline) {
+            eventsArray.push({
+                id: conf.id + '_abs',
+                title: conf.abbr || conf.name,
+                start: conf.abstractDeadline.split('T')[0],
+                classNames: ['fc-custom-abstract'],
+                extendedProps: { type: 'deadline', confId: conf.id }
+            });
         }
         
         if (showEvents) {
             if (conf.eventStart) {
                 eventsArray.push({
                     id: conf.id + '_ev',
-                    title: `Conference Date: ${conf.abbr || conf.name}`,
+                    title: conf.abbr || conf.name,
                     start: conf.eventStart.split('T')[0],
                     end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
                     classNames: ['fc-custom-event'],
@@ -1287,7 +1290,7 @@ function renderCalendar() {
                     
                     eventsArray.push({
                         id: conf.id + '_ev',
-                        title: `Conference Date: ${conf.abbr || conf.name}`,
+                        title: conf.abbr || conf.name,
                         start: `${yyyy}-${mm}-${dd}`,
                         classNames: ['fc-custom-event'],
                         extendedProps: { type: 'event', confId: conf.id }
