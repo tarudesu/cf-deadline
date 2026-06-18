@@ -726,7 +726,15 @@ window.editConference = editConference;
 
 function updateRankingFilterOptions() {
     const currentVal = rankFilter.value;
-    const uniqueRanks = [...new Set(conferences.map(c => c.ranking).filter(r => r))].sort();
+    const rankOrder = ['CORE A*', 'CORE A', 'CORE B', 'CORE C', 'Scopus', 'Unranked'];
+    const uniqueRanks = [...new Set(conferences.map(c => c.ranking).filter(r => r))].sort((a, b) => {
+        const idxA = rankOrder.indexOf(a);
+        const idxB = rankOrder.indexOf(b);
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.localeCompare(b);
+    });
     
     let optionsHtml = '<option value="All">All Rankings</option>';
     uniqueRanks.forEach(rank => {
