@@ -165,10 +165,18 @@ onAuthStateChanged(auth, async (user) => {
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
+        if (typeof deleteAllBtn !== 'undefined' && deleteAllBtn && currentTab === 'all') {
+            deleteAllBtn.style.display = 'inline-flex';
+            deleteAllBtn.classList.remove('hidden');
+        }
         renderConferences(); // re-render to show delete buttons
     } else {
         isAdmin = false;
         adminControls.classList.add('hidden');
+        if (typeof deleteAllBtn !== 'undefined' && deleteAllBtn) {
+            deleteAllBtn.style.display = 'none';
+            deleteAllBtn.classList.add('hidden');
+        }
         renderConferences(); // re-render to hide delete buttons
     }
 });
@@ -719,13 +727,25 @@ function renderConferences() {
     }
     const exportDataBtn = document.getElementById('exportDataBtn');
     const addCalendarBtn = document.getElementById('addCalendarBtn');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
     if (exportDataBtn) {
         if (currentTab === 'all') {
             exportDataBtn.classList.remove('hidden');
             if (addCalendarBtn) addCalendarBtn.classList.remove('hidden');
+            if (deleteAllBtn && isAdmin) {
+                deleteAllBtn.style.display = 'inline-flex';
+                deleteAllBtn.classList.remove('hidden');
+            } else if (deleteAllBtn) {
+                deleteAllBtn.style.display = 'none';
+                deleteAllBtn.classList.add('hidden');
+            }
         } else {
             exportDataBtn.classList.add('hidden');
             if (addCalendarBtn) addCalendarBtn.classList.add('hidden');
+            if (deleteAllBtn) {
+                deleteAllBtn.style.display = 'none';
+                deleteAllBtn.classList.add('hidden');
+            }
         }
     }
 
@@ -1402,5 +1422,21 @@ if (addCalendarBtn) {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+    });
+}
+
+// --- Delete All Logic ---
+const deleteAllBtn = document.getElementById('deleteAllBtn');
+if (deleteAllBtn) {
+    deleteAllBtn.addEventListener('click', async () => {
+        if (!isAdmin) return;
+        
+        const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
+        if (confirmDelete) {
+            conferences = [];
+            await saveConferences();
+            renderConferences();
+            alert("All conferences have been deleted.");
+        }
     });
 }
