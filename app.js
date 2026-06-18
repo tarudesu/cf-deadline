@@ -882,19 +882,32 @@ function renderConferences() {
         
         let displayEventDate = conf.eventDate || '';
         if (conf.eventStart) {
-            // Need timezone adjustment to prevent date shifting backwards on some locales
-            const startDt = new Date(conf.eventStart + 'T12:00:00');
-            const startStr = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            if (conf.eventEnd && conf.eventEnd !== conf.eventStart) {
-                const endDt = new Date(conf.eventEnd + 'T12:00:00');
-                const endStr = endDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                if (startDt.getFullYear() === endDt.getFullYear() && startDt.getMonth() === endDt.getMonth()) {
-                    displayEventDate = `${startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}-${endDt.getDate()}, ${endDt.getFullYear()}`;
+            let startDt = new Date(conf.eventStart);
+            // If it's a simple YYYY-MM-DD string, adding T12:00:00 fixes timezone shifting
+            if (!conf.eventStart.includes('T')) {
+                startDt = new Date(conf.eventStart + 'T12:00:00');
+            }
+            
+            if (!isNaN(startDt)) {
+                const startStr = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (conf.eventEnd && conf.eventEnd !== conf.eventStart) {
+                    let endDt = new Date(conf.eventEnd);
+                    if (!conf.eventEnd.includes('T')) {
+                        endDt = new Date(conf.eventEnd + 'T12:00:00');
+                    }
+                    if (!isNaN(endDt)) {
+                        const endStr = endDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        if (startDt.getFullYear() === endDt.getFullYear() && startDt.getMonth() === endDt.getMonth()) {
+                            displayEventDate = `${startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}-${endDt.getDate()}, ${endDt.getFullYear()}`;
+                        } else {
+                            displayEventDate = `${startStr} - ${endStr}`;
+                        }
+                    } else {
+                        displayEventDate = startStr;
+                    }
                 } else {
-                    displayEventDate = `${startStr} - ${endStr}`;
+                    displayEventDate = startStr;
                 }
-            } else {
-                displayEventDate = startStr;
             }
         }
         
