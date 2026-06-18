@@ -1118,8 +1118,7 @@ select:focus {
     box-shadow: 0 10px 40px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 16rem);
-    min-height: 500px;
+    height: auto;
     border: 1px solid var(--border-color);
     overflow: hidden;
     margin-top: 1rem;
@@ -1211,9 +1210,7 @@ select:focus {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: 1fr;
-    flex: 1;
-    overflow-y: auto;
+    grid-auto-rows: minmax(80px, auto);
     background: var(--border-color);
     gap: 1px;
 }
@@ -1224,7 +1221,6 @@ select:focus {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    min-height: 90px;
     transition: background-color 0.2s ease;
 }
 
