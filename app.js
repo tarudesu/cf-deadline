@@ -265,12 +265,12 @@ if (importJsonBtn) {
                     continue;
                 }
                 
+                await addDoc(collection(db, "conferences"), confData);
                 conferences.push(confData);
                 importCount++;
             }
             
             if (importCount > 0) {
-                await saveConferences();
                 renderConferences();
                 closeModal();
                 alert(`Successfully imported ${importCount} conference(s)!`);
@@ -1433,10 +1433,20 @@ if (deleteAllBtn) {
         
         const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
         if (confirmDelete) {
-            conferences = [];
-            await saveConferences();
-            renderConferences();
-            alert("All conferences have been deleted.");
+            try {
+                // Delete all documents from Firestore individually
+                for (const conf of conferences) {
+                    if (conf.id) {
+                        await deleteDoc(doc(db, "conferences", conf.id));
+                    }
+                }
+                conferences = [];
+                renderConferences();
+                alert("All conferences have been deleted.");
+            } catch (error) {
+                console.error("Error deleting all conferences:", error);
+                alert("Failed to delete all conferences. Please check your permissions.");
+            }
         }
     });
 }
