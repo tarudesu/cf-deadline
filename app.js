@@ -401,7 +401,8 @@ conferenceForm.addEventListener('submit', async (e) => {
     const abbr = document.getElementById('confAbbr').value.trim();
     const location = document.getElementById('confLocation').value.trim();
     const mode = document.getElementById('confMode').value;
-    const eventDate = document.getElementById('confEventDate').value.trim();
+    const eventStart = document.getElementById('confEventStart').value;
+    const eventEnd = document.getElementById('confEventEnd').value;
     const url = document.getElementById('confUrl').value.trim();
     const abstractDeadline = document.getElementById('confAbstractDate').value;
     const deadline = document.getElementById('confDate').value;
@@ -413,7 +414,9 @@ conferenceForm.addEventListener('submit', async (e) => {
         abbr,
         location,
         mode,
-        eventDate,
+        eventStart,
+        eventEnd,
+        eventDate: '',
         url,
         abstractDeadline,
         deadline,
@@ -477,7 +480,8 @@ async function editConference(id) {
     document.getElementById('confAbbr').value = conf.abbr || '';
     document.getElementById('confLocation').value = conf.location || '';
     document.getElementById('confMode').value = conf.mode || 'In-person';
-    document.getElementById('confEventDate').value = conf.eventDate || '';
+    document.getElementById('confEventStart').value = conf.eventStart || '';
+    document.getElementById('confEventEnd').value = conf.eventEnd || '';
     document.getElementById('confUrl').value = conf.url || '';
     document.getElementById('confAbstractDate').value = conf.abstractDeadline || '';
     document.getElementById('confDate').value = conf.deadline || '';
@@ -571,6 +575,11 @@ function renderConferences() {
     if (showOldToggle) {
         showOldToggle.style.display = (currentTab === 'past' || currentTab === 'all') ? 'flex' : 'none';
     }
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    if (exportDataBtn) {
+        if (currentTab === 'all') exportDataBtn.classList.remove('hidden');
+        else exportDataBtn.classList.add('hidden');
+    }
 
     const now = new Date().getTime();
     const sixMonthsAgo = now - (180 * 24 * 60 * 60 * 1000);
@@ -583,7 +592,12 @@ function renderConferences() {
         if (!matchSearch || !matchRank) return false;
 
         const deadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE') || 0;
-        let eventUtc = parseEventDate(conf.eventDate);
+        let eventUtc;
+        if (conf.eventStart) {
+            eventUtc = new Date(conf.eventStart).getTime();
+        } else {
+            eventUtc = parseEventDate(conf.eventDate);
+        }
         if (isNaN(eventUtc)) eventUtc = deadlineUtc;
 
         if (currentTab === 'upcoming-deadlines') {
@@ -693,7 +707,24 @@ function renderConferences() {
             </div>
         ` : '';
 
-        let eventDateHTML = conf.eventDate ? `
+        let displayEventDate = conf.eventDate || '';
+        if (conf.eventStart) {
+            const startDt = new Date(conf.eventStart);
+            const startStr = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (conf.eventEnd && conf.eventEnd !== conf.eventStart) {
+                const endDt = new Date(conf.eventEnd);
+                const endStr = endDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (startDt.getFullYear() === endDt.getFullYear() && startDt.getMonth() === endDt.getMonth()) {
+                    displayEventDate = `${startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}-${endDt.getDate()}, ${endDt.getFullYear()}`;
+                } else {
+                    displayEventDate = `${startStr} - ${endStr}`;
+                }
+            } else {
+                displayEventDate = startStr;
+            }
+        }
+
+        let eventDateHTML = displayEventDate ? `
             <div class="meta-row">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -701,7 +732,7 @@ function renderConferences() {
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-                <span>Date: <strong>${conf.eventDate}</strong></span>
+                <span>Date: <strong>${displayEventDate}</strong></span>
             </div>
         ` : '';
 
@@ -807,7 +838,12 @@ function renderConferences() {
         // Find the first upcoming conference to be the hero
         const topItem = listToRender[0];
         const deadlineUtc = getUtcTimestamp(topItem.deadline, topItem.timezone || 'AoE') || 0;
-        let eventUtc = parseEventDate(topItem.eventDate);
+        let eventUtc;
+        if (topItem.eventStart) {
+            eventUtc = new Date(topItem.eventStart).getTime();
+        } else {
+            eventUtc = parseEventDate(topItem.eventDate);
+        }
         if (isNaN(eventUtc)) eventUtc = deadlineUtc;
 
         const isFuture = currentTab === 'upcoming-events' ? eventUtc >= now : deadlineUtc >= now;
@@ -940,10 +976,10 @@ const calendarGrid = document.getElementById('calendarGrid');
 const calendarMonthTitle = document.getElementById('calendarMonthTitle');
 const prevMonthBtn = document.getElementById('prevMonthBtn');
 const nextMonthBtn = document.getElementById('nextMonthBtn');
-const calFilterRadios = document.querySelectorAll('input[name="calFilter"]');
+const filterDeadlines = document.getElementById('calFilterDeadlines');
+const filterEvents = document.getElementById('calFilterEvents');
 
 let currentCalDate = new Date();
-let activeCalFilter = 'all';
 
 if (calendarBtn) {
     calendarBtn.addEventListener('click', () => {
@@ -973,12 +1009,12 @@ if (nextMonthBtn) {
     });
 }
 
-calFilterRadios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        activeCalFilter = e.target.value;
-        renderCalendar();
-    });
-});
+if (filterDeadlines) {
+    filterDeadlines.addEventListener('change', renderCalendar);
+}
+if (filterEvents) {
+    filterEvents.addEventListener('change', renderCalendar);
+}
 
 function renderCalendar() {
     if (!calendarGrid) return;
@@ -1032,15 +1068,38 @@ function renderCalendar() {
             }
         };
 
-        if (activeCalFilter === 'all' || activeCalFilter === 'deadlines') {
+        const showDeadlines = filterDeadlines ? filterDeadlines.checked : true;
+        const showEvents = filterEvents ? filterEvents.checked : true;
+
+        if (showDeadlines) {
             addEventIfMatches(conf.deadline, 'deadline');
             if (conf.abstractDeadline) {
                 addEventIfMatches(conf.abstractDeadline, 'deadline');
             }
         }
         
-        if (activeCalFilter === 'all' || activeCalFilter === 'events') {
-            addEventIfMatches(conf.eventDate, 'event');
+        if (showEvents) {
+            if (conf.eventStart) {
+                const st = new Date(conf.eventStart);
+                const en = conf.eventEnd ? new Date(conf.eventEnd) : st;
+                if (!isNaN(st.getTime()) && !isNaN(en.getTime())) {
+                    let cur = new Date(st);
+                    while (cur <= en) {
+                        if (cur.getFullYear() === year && cur.getMonth() === month) {
+                            const day = cur.getDate();
+                            if (dayEvents[day]) {
+                                const isDup = dayEvents[day].some(e => e.conf.id === conf.id && e.type === 'event');
+                                if (!isDup) {
+                                    dayEvents[day].push({ conf, type: 'event' });
+                                }
+                            }
+                        }
+                        cur.setDate(cur.getDate() + 1);
+                    }
+                }
+            } else {
+                addEventIfMatches(conf.eventDate, 'event');
+            }
         }
     });
     
@@ -1101,4 +1160,40 @@ function renderCalendar() {
         emptyCell.className = 'calendar-cell other-month';
         calendarGrid.appendChild(emptyCell);
     }
+}
+
+// --- Export Logic ---
+const exportDataBtn = document.getElementById('exportDataBtn');
+if (exportDataBtn) {
+    exportDataBtn.addEventListener('click', () => {
+        const jsonData = JSON.stringify(conferences, null, 2);
+        
+        // Basic CSV generation
+        const headers = ['id', 'name', 'abbr', 'ranking', 'location', 'mode', 'eventStart', 'eventEnd', 'eventDate', 'abstractDeadline', 'deadline', 'timezone', 'url'];
+        let csvContent = headers.join(',') + '\n';
+        
+        conferences.forEach(conf => {
+            const row = headers.map(header => {
+                let val = conf[header] || '';
+                // Escape quotes and wrap in quotes if there's a comma
+                val = val.toString().replace(/"/g, '""');
+                if (val.search(/("|,|\n)/g) >= 0) {
+                    val = `"${val}"`;
+                }
+                return val;
+            });
+            csvContent += row.join(',') + '\n';
+        });
+
+        // Prompt user for format
+        const format = confirm("Click OK to download as JSON, or Cancel to download as CSV.") ? 'json' : 'csv';
+        
+        const blob = new Blob([format === 'json' ? jsonData : csvContent], { type: format === 'json' ? 'application/json' : 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cf_deadline_export.${format}`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
 }

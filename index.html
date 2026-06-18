@@ -50,6 +50,13 @@
                     <input type="text" id="searchInput" placeholder="Search conferences...">
                 </div>
                 <div class="filter-group" style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="exportDataBtn" class="secondary-btn hidden" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; height: 100%;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.3rem; vertical-align: text-bottom;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>Export
+                    </button>
                     <label id="showOldToggle" class="hidden" style="display: none; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm);">
                         <input type="checkbox" id="showOldCheck">
                         Show >6mo old
@@ -139,8 +146,12 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="confEventDate">Conference Date & Time</label>
-                            <input type="text" id="confEventDate" placeholder="e.g., June 18-22, 2027">
+                            <label for="confEventStart">Event Start</label>
+                            <input type="datetime-local" id="confEventStart">
+                        </div>
+                        <div class="form-group">
+                            <label for="confEventEnd">Event End</label>
+                            <input type="datetime-local" id="confEventEnd">
                         </div>
                         <div class="form-group">
                             <label for="confUrl">Website URL</label>
@@ -283,9 +294,8 @@ Output in code snippet</pre>
                     </button>
                 </div>
                 <div class="calendar-filters">
-                    <label><input type="radio" name="calFilter" value="all" checked> All</label>
-                    <label><input type="radio" name="calFilter" value="deadlines"> Deadlines</label>
-                    <label><input type="radio" name="calFilter" value="events"> Events</label>
+                    <label><input type="checkbox" id="calFilterDeadlines" checked> Submission Deadlines</label>
+                    <label><input type="checkbox" id="calFilterEvents" checked> Conference Dates</label>
                 </div>
                 <button id="closeCalendarBtn" class="icon-btn close-modal">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
