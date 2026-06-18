@@ -505,12 +505,14 @@ parseMarkdownBtn.addEventListener('click', () => {
     markdownInput.value = '';
 });
 
-// Helper: Get UTC millisecond timestamp for a datetime-local in a specific timezone
+// Helper: Get UTC millisecond timestamp for a datetime-local or date in a specific timezone
 function getUtcTimestamp(localDateTimeStr, timezoneVal) {
     if (!localDateTimeStr) return null;
     
-    let baseStr = localDateTimeStr;
-    if (baseStr.length === 16) {
+    let baseStr = localDateTimeStr.trim();
+    if (baseStr.length === 10) {
+        baseStr += 'T23:59:59'; // assume end of day for pure dates
+    } else if (baseStr.length === 16) {
         baseStr += ':00'; // add seconds if missing
     }
     
@@ -534,19 +536,37 @@ function getUtcTimestamp(localDateTimeStr, timezoneVal) {
 // Helper: Formats local time string exactly as entered for display
 function formatNominalDate(localDateTimeStr) {
     if (!localDateTimeStr) return '';
-    const [datePart, timePart] = localDateTimeStr.split('T');
-    if (!datePart || !timePart) return localDateTimeStr;
-    const [year, month, day] = datePart.split('-');
-    const [hours, minutes] = timePart.split(':');
     
-    const date = new Date(year, month - 1, day, hours, minutes);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    let datePart, timePart;
+    if (localDateTimeStr.includes('T')) {
+        [datePart, timePart] = localDateTimeStr.split('T');
+    } else {
+        datePart = localDateTimeStr.trim();
+        timePart = null;
+    }
+    
+    const parts = datePart.split('-');
+    if (parts.length !== 3) return localDateTimeStr;
+    const [year, month, day] = parts;
+    
+    if (timePart) {
+        const [hours, minutes] = timePart.split(':');
+        const date = new Date(year, month - 1, day, hours, minutes);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } else {
+        const date = new Date(year, month - 1, day);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
 }
 
 conferenceForm.addEventListener('submit', async (e) => {
@@ -681,11 +701,11 @@ async function editConference(id) {
     document.getElementById('confAbbr').value = conf.abbr || '';
     document.getElementById('confLocation').value = conf.location || '';
     document.getElementById('confMode').value = conf.mode || 'In-person';
-    document.getElementById('confEventStart').value = conf.eventStart || '';
-    document.getElementById('confEventEnd').value = conf.eventEnd || '';
+    document.getElementById('confEventStart').value = formatDateTimeForInput(conf.eventStart);
+    document.getElementById('confEventEnd').value = formatDateTimeForInput(conf.eventEnd);
     document.getElementById('confUrl').value = conf.url || '';
-    document.getElementById('confAbstractDate').value = conf.abstractDeadline || '';
-    document.getElementById('confDate').value = conf.deadline || '';
+    document.getElementById('confAbstractDate').value = formatDateTimeForInput(conf.abstractDeadline);
+    document.getElementById('confDate').value = formatDateTimeForInput(conf.deadline);
     document.getElementById('confTimezone').value = conf.timezone || 'AoE';
 
     document.getElementById('saveConferenceBtn').textContent = 'Update Deadline';
