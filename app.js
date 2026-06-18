@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -1477,12 +1477,24 @@ if (deleteAllBtn) {
         const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
         if (confirmDelete) {
             try {
-                // Delete all documents from Firestore individually
-                for (const conf of conferences) {
+                // Use Firestore batch to reliably delete everything at once
+                const batch = writeBatch(db);
+                let count = 0;
+                
+                // Use a copy of the array to avoid mutation issues
+                const toDelete = [...conferences];
+                
+                for (const conf of toDelete) {
                     if (conf.id) {
-                        await deleteDoc(doc(db, "conferences", conf.id));
+                        batch.delete(doc(db, "conferences", conf.id));
+                        count++;
                     }
                 }
+                
+                if (count > 0) {
+                    await batch.commit();
+                }
+                
                 conferences = [];
                 renderConferences();
                 alert("All conferences have been deleted.");
