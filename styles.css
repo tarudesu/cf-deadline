@@ -1268,7 +1268,7 @@ select:focus {
 }
 
 /* Custom Events */
-.fc-custom-deadline, .fc-custom-event {
+.fc-custom-deadline, .fc-custom-event, .fc-custom-abstract {
     cursor: pointer;
     font-family: var(--font-sans);
     font-weight: 600;
@@ -1280,7 +1280,7 @@ select:focus {
     transition: transform 0.1s ease;
 }
 
-.fc-custom-deadline:hover, .fc-custom-event:hover {
+.fc-custom-deadline:hover, .fc-custom-event:hover, .fc-custom-abstract:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
