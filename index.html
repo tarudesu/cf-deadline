@@ -27,10 +27,13 @@
         <main class="content">
             <div class="sticky-header">
                 <div class="top-nav">
-                    <div class="brand">
-                        <div class="logo"></div>
-                        <h1>cf-deadline</h1>
-                        <span class="count-badge" id="totalCount" style="margin-left: 0.5rem; font-size: 0.75rem; padding: 0.15rem 0.5rem;">0</span>
+                    <div class="brand" style="flex-direction: column; align-items: flex-start; gap: 0.2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="logo"></div>
+                            <h1>cf-deadline</h1>
+                            <span class="count-badge" id="totalCount" style="margin-left: 0.5rem; font-size: 0.75rem; padding: 0.15rem 0.5rem;">0</span>
+                        </div>
+                        <a href="#" id="syncGcalBtn" style="font-size: 0.75rem; font-style: italic; text-decoration: underline; color: var(--accent-primary); cursor: pointer; margin-left: 2.5rem;">Sync to Google Calendar</a>
                     </div>
                     
                     <div class="main-tabs">

@@ -1211,3 +1211,82 @@ if (aoeClockDisplay) {
         aoeClockDisplay.textContent = `AoE: ${yyyy}-${mo}-${dd} ${hh}:${mm}:${ss}`;
     }, 1000);
 }
+
+// --- Sync to Google Calendar (ICS Download) ---
+const syncGcalBtn = document.getElementById('syncGcalBtn');
+if (syncGcalBtn) {
+    syncGcalBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!conferences || conferences.length === 0) {
+            alert("No conferences to sync!");
+            return;
+        }
+
+        let icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//cf-deadline//EN\r\n";
+        
+        conferences.forEach(conf => {
+            // Event Date
+            if (conf.date) {
+                // simple parse if YYYY-MM-DD
+                let startStr = conf.date.replace(/-/g, '');
+                if (startStr.length === 8) {
+                    icsContent += "BEGIN:VEVENT\r\n";
+                    icsContent += `DTSTART;VALUE=DATE:${startStr}\r\n`;
+                    if (conf.date_end) {
+                        const endD = new Date(conf.date_end);
+                        if (!isNaN(endD.getTime())) {
+                            endD.setDate(endD.getDate() + 1); // exclusive end date
+                            const endStr = endD.toISOString().split('T')[0].replace(/-/g, '');
+                            icsContent += `DTEND;VALUE=DATE:${endStr}\r\n`;
+                        }
+                    } else {
+                        icsContent += `DTEND;VALUE=DATE:${startStr}\r\n`;
+                    }
+                    icsContent += `SUMMARY:[Event] ${conf.abbr || conf.name}\r\n`;
+                    icsContent += `DESCRIPTION:${conf.name}\\nURL: ${conf.url || ''}\r\n`;
+                    icsContent += "END:VEVENT\r\n";
+                }
+            }
+            
+            // Abstract Deadline
+            if (conf.abstract_deadline) {
+                const absDate = new Date(conf.abstract_deadline);
+                if (!isNaN(absDate.getTime())) {
+                    const startStr = absDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                    icsContent += "BEGIN:VEVENT\r\n";
+                    icsContent += `DTSTART:${startStr}\r\n`;
+                    icsContent += `DTEND:${startStr}\r\n`;
+                    icsContent += `SUMMARY:[Abstract Deadline] ${conf.abbr || conf.name}\r\n`;
+                    icsContent += `DESCRIPTION:${conf.name}\\nURL: ${conf.url || ''}\r\n`;
+                    icsContent += "END:VEVENT\r\n";
+                }
+            }
+            
+            // Submission Deadline
+            if (conf.deadline) {
+                const deadDate = new Date(conf.deadline);
+                if (!isNaN(deadDate.getTime())) {
+                    const startStr = deadDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                    icsContent += "BEGIN:VEVENT\r\n";
+                    icsContent += `DTSTART:${startStr}\r\n`;
+                    icsContent += `DTEND:${startStr}\r\n`;
+                    icsContent += `SUMMARY:[Deadline] ${conf.abbr || conf.name}\r\n`;
+                    icsContent += `DESCRIPTION:${conf.name}\\nURL: ${conf.url || ''}\r\n`;
+                    icsContent += "END:VEVENT\r\n";
+                }
+            }
+        });
+        
+        icsContent += "END:VCALENDAR\r\n";
+        
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'cf-deadlines.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    });
+}
