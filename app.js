@@ -1182,32 +1182,11 @@ const exportDataBtn = document.getElementById('exportDataBtn');
 if (exportDataBtn) {
     exportDataBtn.addEventListener('click', () => {
         const jsonData = JSON.stringify(conferences, null, 2);
-        
-        // Basic CSV generation
-        const headers = ['id', 'name', 'abbr', 'ranking', 'location', 'mode', 'eventStart', 'eventEnd', 'eventDate', 'abstractDeadline', 'deadline', 'timezone', 'url'];
-        let csvContent = headers.join(',') + '\n';
-        
-        conferences.forEach(conf => {
-            const row = headers.map(header => {
-                let val = conf[header] || '';
-                // Escape quotes and wrap in quotes if there's a comma
-                val = val.toString().replace(/"/g, '""');
-                if (val.search(/("|,|\n)/g) >= 0) {
-                    val = `"${val}"`;
-                }
-                return val;
-            });
-            csvContent += row.join(',') + '\n';
-        });
-
-        // Prompt user for format
-        const format = confirm("Click OK to download as JSON, or Cancel to download as CSV.") ? 'json' : 'csv';
-        
-        const blob = new Blob([format === 'json' ? jsonData : csvContent], { type: format === 'json' ? 'application/json' : 'text/csv' });
+        const blob = new Blob([jsonData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `cf_deadline_export.${format}`;
+        a.download = `cf_deadline_export.json`;
         a.click();
         URL.revokeObjectURL(url);
     });

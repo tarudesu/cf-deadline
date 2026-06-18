@@ -146,16 +146,12 @@
 
                     <div class="form-row">
                         <div class="form-group flex-1">
-                            <label for="confEventStart">Event Start Date</label>
-                            <input type="date" id="confEventStart">
+                            <label for="confEventStart">Event Start</label>
+                            <input type="datetime-local" id="confEventStart">
                         </div>
                         <div class="form-group flex-1">
-                            <label for="confEventEnd">Event End Date</label>
-                            <input type="date" id="confEventEnd">
-                        </div>
-                        <div class="form-group flex-2">
-                            <label for="confUrl">Website URL</label>
-                            <input type="url" id="confUrl" placeholder="https://...">
+                            <label for="confEventEnd">Event End</label>
+                            <input type="datetime-local" id="confEventEnd">
                         </div>
                     </div>
 
@@ -168,6 +164,9 @@
                             <label for="confDate">Submission Deadline</label>
                             <input type="datetime-local" id="confDate" required>
                         </div>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group flex-1">
                             <label for="confTimezone">Deadline Timezone</label>
                             <select id="confTimezone" required>
@@ -200,6 +199,10 @@
                                 <option value="-10:00">UTC-10:00 (HST)</option>
                                 <option value="-11:00">UTC-11:00</option>
                             </select>
+                        </div>
+                        <div class="form-group flex-2">
+                            <label for="confUrl">Website URL</label>
+                            <input type="url" id="confUrl" placeholder="https://...">
                         </div>
                     </div>
 
