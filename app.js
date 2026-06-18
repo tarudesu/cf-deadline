@@ -32,13 +32,21 @@ const mainTabs = document.querySelectorAll('.main-tab');
 // Tab Selection & Markdown Elements
 const tabManual = document.getElementById('tabManual');
 const tabMarkdown = document.getElementById('tabMarkdown');
+const tabJson = document.getElementById('tabJson');
 const manualFormSection = document.getElementById('manualFormSection');
 const markdownImportSection = document.getElementById('markdownImportSection');
+const jsonImportSection = document.getElementById('jsonImportSection');
 const copyPromptBtn = document.getElementById('copyPromptBtn');
 const promptTemplate = document.getElementById('promptTemplate');
 const markdownInput = document.getElementById('markdownInput');
 const cancelMarkdownBtn = document.getElementById('cancelMarkdownBtn');
 const parseMarkdownBtn = document.getElementById('parseMarkdownBtn');
+
+// JSON elements
+const jsonFileInput = document.getElementById('jsonFileInput');
+const jsonInput = document.getElementById('jsonInput');
+const cancelJsonBtn = document.getElementById('cancelJsonBtn');
+const importJsonBtn = document.getElementById('importJsonBtn');
 
 // Auth Elements
 const adminControls = document.getElementById('adminControls');
@@ -184,7 +192,89 @@ const closeModal = () => {
 
 closeModalBtn.addEventListener('click', closeModal);
 cancelBtn.addEventListener('click', closeModal);
+// Markdown Cancel Button
 cancelMarkdownBtn.addEventListener('click', closeModal);
+
+// JSON Cancel Button
+if (cancelJsonBtn) {
+    cancelJsonBtn.addEventListener('click', closeModal);
+}
+
+// JSON File Input Handler
+if (jsonFileInput) {
+    jsonFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            jsonInput.value = event.target.result;
+        };
+        reader.readAsText(file);
+    });
+}
+
+// JSON Import Logic
+if (importJsonBtn) {
+    importJsonBtn.addEventListener('click', async () => {
+        const rawJson = jsonInput.value.trim();
+        if (!rawJson) {
+            alert('Please paste some JSON or select a file.');
+            return;
+        }
+
+        try {
+            const data = JSON.parse(rawJson);
+            const items = Array.isArray(data) ? data : [data];
+            
+            let importCount = 0;
+            
+            for (const item of items) {
+                // Ensure minimal fields exist, mainly just an ID and Name/Abbr
+                if (!item.name && !item.abbr) continue;
+                
+                const confData = {
+                    id: item.id || crypto.randomUUID(),
+                    name: item.name || '',
+                    abbr: item.abbr || '',
+                    location: item.location || '',
+                    mode: item.mode || 'In-person',
+                    ranking: item.ranking || 'Unranked',
+                    date: item.date || item.eventDate || '',
+                    date_end: item.date_end || item.eventEnd || item.date || item.eventDate || '',
+                    url: item.url || '',
+                    abstract_deadline: item.abstract_deadline || item.abstractDeadline || '',
+                    deadline: item.deadline || '',
+                    timezone: item.timezone || 'AoE'
+                };
+                
+                // Duplicate check by Abbr
+                const isDuplicate = conferences.some(c => 
+                    c.abbr && confData.abbr && c.abbr.toLowerCase() === confData.abbr.toLowerCase()
+                );
+                
+                if (isDuplicate) {
+                    console.warn(`Skipping duplicate abbreviation: ${confData.abbr}`);
+                    continue;
+                }
+                
+                conferences.push(confData);
+                importCount++;
+            }
+            
+            if (importCount > 0) {
+                await saveConferences();
+                renderConferences();
+                closeModal();
+                alert(`Successfully imported ${importCount} conference(s)!`);
+            } else {
+                alert('No valid or unique conferences found to import.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Invalid JSON format. Please check your data.');
+        }
+    });
+}
 
 modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) {
@@ -202,16 +292,34 @@ document.addEventListener('keydown', (e) => {
 tabManual.addEventListener('click', () => {
     tabManual.classList.add('active');
     tabMarkdown.classList.remove('active');
+    if (tabJson) tabJson.classList.remove('active');
+    
     manualFormSection.classList.remove('hidden');
     markdownImportSection.classList.add('hidden');
+    if (jsonImportSection) jsonImportSection.classList.add('hidden');
 });
 
 tabMarkdown.addEventListener('click', () => {
     tabMarkdown.classList.add('active');
     tabManual.classList.remove('active');
+    if (tabJson) tabJson.classList.remove('active');
+    
     markdownImportSection.classList.remove('hidden');
     manualFormSection.classList.add('hidden');
+    if (jsonImportSection) jsonImportSection.classList.add('hidden');
 });
+
+if (tabJson) {
+    tabJson.addEventListener('click', () => {
+        tabJson.classList.add('active');
+        tabManual.classList.remove('active');
+        tabMarkdown.classList.remove('active');
+        
+        jsonImportSection.classList.remove('hidden');
+        manualFormSection.classList.add('hidden');
+        markdownImportSection.classList.add('hidden');
+    });
+}
 
 // Copy Prompt to Clipboard
 copyPromptBtn.addEventListener('click', async () => {

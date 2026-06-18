@@ -142,6 +142,7 @@
             <div class="modal-tabs">
                 <button type="button" id="tabManual" class="modal-tab active">Manual Form</button>
                 <button type="button" id="tabMarkdown" class="modal-tab">Import from Markdown</button>
+                <button type="button" id="tabJson" class="modal-tab">Import from JSON</button>
             </div>
 
             <!-- Manual Form Section -->
@@ -288,6 +289,28 @@ Output in code snippet</pre>
                 <div class="modal-actions">
                     <button type="button" id="cancelMarkdownBtn" class="secondary-btn">Cancel</button>
                     <button type="button" id="parseMarkdownBtn" class="primary-btn">Parse & Populate</button>
+                </div>
+            </div>
+
+            <!-- JSON Import Section -->
+            <div id="jsonImportSection" class="hidden">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="jsonFileInput" class="secondary-btn" style="display: inline-block; cursor: pointer; text-align: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.3rem; vertical-align: text-bottom;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg> Select JSON File
+                    </label>
+                    <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+                </div>
+                <div class="form-group">
+                    <label for="jsonInput">Or Paste JSON Array Here</label>
+                    <textarea id="jsonInput" placeholder='[{"name": "Conference", "abbr": "Conf", "deadline": "2026-06-18", ...}]' style="height: 150px; font-family: var(--font-mono); font-size: 0.8rem;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelJsonBtn" class="secondary-btn">Cancel</button>
+                    <button type="button" id="importJsonBtn" class="primary-btn">Import JSON</button>
                 </div>
             </div>
         </div>
