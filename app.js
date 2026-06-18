@@ -1276,14 +1276,24 @@ function renderCalendar() {
                 let endString = null;
                 
                 if (conf.eventEnd && conf.eventEnd.toLowerCase() !== 'tbd') {
-                    const endTs = Date.parse(conf.eventEnd);
-                    if (!isNaN(endTs)) {
-                        const endDt = new Date(endTs);
+                    const endMatch = conf.eventEnd.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (endMatch) {
+                        const endDt = new Date(parseInt(endMatch[1]), parseInt(endMatch[2]) - 1, parseInt(endMatch[3]), 12, 0, 0);
                         endDt.setDate(endDt.getDate() + 1); // FullCalendar end dates are exclusive
                         const yyyy = endDt.getFullYear();
                         const mm = String(endDt.getMonth() + 1).padStart(2, '0');
                         const dd = String(endDt.getDate()).padStart(2, '0');
                         endString = `${yyyy}-${mm}-${dd}`;
+                    } else {
+                        const endTs = Date.parse(conf.eventEnd);
+                        if (!isNaN(endTs)) {
+                            const endDt = new Date(endTs);
+                            endDt.setDate(endDt.getDate() + 1);
+                            const yyyy = endDt.getFullYear();
+                            const mm = String(endDt.getMonth() + 1).padStart(2, '0');
+                            const dd = String(endDt.getDate()).padStart(2, '0');
+                            endString = `${yyyy}-${mm}-${dd}`;
+                        }
                     }
                 }
                 
