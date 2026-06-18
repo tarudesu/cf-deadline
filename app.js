@@ -375,11 +375,11 @@ copyPromptBtn.addEventListener('click', async () => {
     }
 });
 
-// Helper: Format YYYY-MM-DD HH:MM from Markdown for <input type="datetime-local">
+// Helper: Format YYYY-MM-DD from Markdown for <input type="date">
 function formatDateTimeForInput(dateStr) {
     if (!dateStr) return '';
-    let formatted = dateStr.trim().replace(/\s+/, 'T');
-    const match = formatted.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+    let formatted = dateStr.trim();
+    const match = formatted.match(/^\d{4}-\d{2}-\d{2}/);
     return match ? match[0] : '';
 }
 
@@ -458,8 +458,7 @@ parseMarkdownBtn.addEventListener('click', () => {
         } else {
             start = data.eventDate.trim();
         }
-        if (start && start.length === 10) start += 'T00:00';
-        if (end && end.length === 10) end += 'T00:00';
+        // No longer need to append T00:00 because inputs are type="date"
         const startEl = document.getElementById('confEventStart');
         const endEl = document.getElementById('confEventEnd');
         if (startEl && start) startEl.value = start;
