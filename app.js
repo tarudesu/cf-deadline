@@ -622,6 +622,12 @@ onSnapshot(q, (querySnapshot) => {
     });
     updateRankingFilterOptions();
     renderConferences();
+    
+    // Auto-sync calendar if it is the active tab
+    if (currentTab === 'calendar' && typeof renderCalendar === 'function') {
+        renderCalendar();
+    }
+    
     if (!countdownInterval) {
         startCountdownTimer();
     }
@@ -1234,6 +1240,63 @@ function renderCalendar() {
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl) return;
     
+    const showDeadlines = document.getElementById('calFilterDeadlines')?.checked ?? true;
+    const showEvents = document.getElementById('calFilterEvents')?.checked ?? true;
+    
+    const eventsArray = [];
+    
+    conferences.forEach(conf => {
+        if (showDeadlines) {
+            if (conf.deadline) {
+                eventsArray.push({
+                    id: conf.id + '_dl',
+                    title: `Submission Deadline: ${conf.abbr || conf.name}`,
+                    start: conf.deadline.split('T')[0],
+                    classNames: ['fc-custom-deadline'],
+                    extendedProps: { type: 'deadline', confId: conf.id }
+                });
+            }
+            if (conf.abstractDeadline) {
+                eventsArray.push({
+                    id: conf.id + '_abs',
+                    title: `Abstract Deadline: ${conf.abbr || conf.name}`,
+                    start: conf.abstractDeadline.split('T')[0],
+                    classNames: ['fc-custom-deadline'],
+                    extendedProps: { type: 'deadline', confId: conf.id }
+                });
+            }
+        }
+        
+        if (showEvents) {
+            if (conf.eventStart) {
+                eventsArray.push({
+                    id: conf.id + '_ev',
+                    title: `Conference Date: ${conf.abbr || conf.name}`,
+                    start: conf.eventStart.split('T')[0],
+                    end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
+                    classNames: ['fc-custom-event'],
+                    extendedProps: { type: 'event', confId: conf.id }
+                });
+            } else if (conf.eventDate) {
+                const ts = parseEventDate(conf.eventDate);
+                if (!isNaN(ts)) {
+                    const dt = new Date(ts);
+                    const yyyy = dt.getFullYear();
+                    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+                    const dd = String(dt.getDate()).padStart(2, '0');
+                    
+                    eventsArray.push({
+                        id: conf.id + '_ev',
+                        title: `Conference Date: ${conf.abbr || conf.name}`,
+                        start: `${yyyy}-${mm}-${dd}`,
+                        classNames: ['fc-custom-event'],
+                        extendedProps: { type: 'event', confId: conf.id }
+                    });
+                }
+            }
+        }
+    });
+    
     if (!fullCalendarInstance) {
         fullCalendarInstance = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
@@ -1244,9 +1307,10 @@ function renderCalendar() {
                 center: 'title',
                 right: 'dayGridMonth,listMonth'
             },
+            events: eventsArray,
             eventClick: function(info) {
                 const evType = info.event.extendedProps.type;
-                const confId = info.event.id;
+                const confId = info.event.extendedProps.confId;
                 
                 let targetTabSelector = '.main-tab[data-tab="all"]';
                 if (evType === 'event') {
@@ -1270,65 +1334,10 @@ function renderCalendar() {
             }
         });
         fullCalendarInstance.render();
+    } else {
+        fullCalendarInstance.removeAllEvents();
+        fullCalendarInstance.addEventSource(eventsArray);
     }
-    
-    fullCalendarInstance.removeAllEvents();
-    
-    const showDeadlines = document.getElementById('calFilterDeadlines')?.checked ?? true;
-    const showEvents = document.getElementById('calFilterEvents')?.checked ?? true;
-    
-    conferences.forEach(conf => {
-        if (showDeadlines) {
-            if (conf.deadline) {
-                const ts = Date.parse(conf.deadline);
-                if (!isNaN(ts)) {
-                    fullCalendarInstance.addEvent({
-                        id: conf.id,
-                        title: `Submission Deadline: ${conf.abbr || conf.name}`,
-                        start: new Date(ts),
-                        classNames: ['fc-custom-deadline'],
-                        extendedProps: { type: 'deadline' }
-                    });
-                }
-            }
-            if (conf.abstractDeadline) {
-                const ts = Date.parse(conf.abstractDeadline);
-                if (!isNaN(ts)) {
-                    fullCalendarInstance.addEvent({
-                        id: conf.id,
-                        title: `Abstract Deadline: ${conf.abbr || conf.name}`,
-                        start: new Date(ts),
-                        classNames: ['fc-custom-deadline'],
-                        extendedProps: { type: 'deadline' }
-                    });
-                }
-            }
-        }
-        
-        if (showEvents) {
-            if (conf.eventStart) {
-                fullCalendarInstance.addEvent({
-                    id: conf.id,
-                    title: `Conference Date: ${conf.abbr || conf.name}`,
-                    start: conf.eventStart,
-                    end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
-                    classNames: ['fc-custom-event'],
-                    extendedProps: { type: 'event' }
-                });
-            } else if (conf.eventDate) {
-                const ts = parseEventDate(conf.eventDate);
-                if (!isNaN(ts)) {
-                    fullCalendarInstance.addEvent({
-                        id: conf.id,
-                        title: `Conference Date: ${conf.abbr || conf.name}`,
-                        start: new Date(ts),
-                        classNames: ['fc-custom-event'],
-                        extendedProps: { type: 'event' }
-                    });
-                }
-            }
-        }
-    });
 }
 
 // --- Export Logic ---
