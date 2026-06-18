@@ -1477,30 +1477,42 @@ if (deleteAllBtn) {
         const confirmDelete = confirm("Are you absolutely sure you want to delete ALL conferences? This action cannot be undone.");
         if (confirmDelete) {
             try {
-                // Use Firestore batch to reliably delete everything at once
-                const batch = writeBatch(db);
-                let count = 0;
-                
-                // Use a copy of the array to avoid mutation issues
+                // Delete everything in chunks of 500 (Firestore limit)
                 const toDelete = [...conferences];
+                
+                // Clear UI optimistically
+                conferences = [];
+                renderConferences();
+                
+                // Clear dataset inputs
+                const jsonInputEl = document.getElementById('jsonInput');
+                if (jsonInputEl) jsonInputEl.value = '';
+                const jsonDropTextEl = document.getElementById('jsonDropText');
+                if (jsonDropTextEl) jsonDropTextEl.textContent = 'JSON files only';
+                
+                let count = 0;
+                let batch = writeBatch(db);
                 
                 for (const conf of toDelete) {
                     if (conf.id) {
                         batch.delete(doc(db, "conferences", conf.id));
                         count++;
+                        
+                        if (count % 500 === 0) {
+                            await batch.commit();
+                            batch = writeBatch(db);
+                        }
                     }
                 }
                 
-                if (count > 0) {
+                if (count % 500 !== 0) {
                     await batch.commit();
                 }
                 
-                conferences = [];
-                renderConferences();
-                alert("All conferences have been deleted.");
+                alert("All conferences have been successfully deleted and the dataset is empty.");
             } catch (error) {
                 console.error("Error deleting all conferences:", error);
-                alert("Failed to delete all conferences. Please check your permissions.");
+                alert("Failed to delete all conferences entirely. Please check your permissions.");
             }
         }
     });
