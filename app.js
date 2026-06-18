@@ -1271,6 +1271,7 @@ function renderCalendar() {
         }
         
         if (showEvents) {
+            console.log(`[CAL DEBUG] conf="${conf.abbr||conf.name}" eventStart="${conf.eventStart}" eventEnd="${conf.eventEnd}" eventDate="${conf.eventDate}"`);
             if (conf.eventStart && conf.eventStart.toLowerCase() !== 'tbd') {
                 let startString = conf.eventStart.split('T')[0];
                 let endString = null;
@@ -1297,6 +1298,7 @@ function renderCalendar() {
                     }
                 }
                 
+                console.log(`[CAL DEBUG]   -> PUSH event: start="${startString}" end="${endString}"`);
                 eventsArray.push({
                     id: conf.id + '_ev',
                     title: conf.abbr || conf.name,
@@ -1307,6 +1309,7 @@ function renderCalendar() {
                 });
             } else if (conf.eventDate && conf.eventDate.toLowerCase() !== 'tbd') {
                 const ts = parseEventDate(conf.eventDate);
+                console.log(`[CAL DEBUG]   -> parseEventDate("${conf.eventDate}") = ${ts} (${isNaN(ts) ? 'NaN' : new Date(ts).toISOString()})`);
                 if (!isNaN(ts)) {
                     const dt = new Date(ts);
                     const yyyy = dt.getFullYear();
@@ -1321,6 +1324,8 @@ function renderCalendar() {
                         extendedProps: { type: 'event', confId: conf.id }
                     });
                 }
+            } else {
+                console.log(`[CAL DEBUG]   -> SKIPPED (no eventStart or eventDate)`);
             }
         }
     });
