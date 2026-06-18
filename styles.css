@@ -700,7 +700,8 @@ input::placeholder {
 }
 
 /* To hide calendar icon in some browsers to keep it clean, though useful to keep */
-input[type="datetime-local"] {
+input[type="datetime-local"],
+input[type="date"] {
     font-family: var(--font-mono);
     font-size: 0.85rem;
 }

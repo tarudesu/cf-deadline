@@ -112,23 +112,12 @@
                             <input type="text" id="confName" placeholder="e.g., Computer Vision and Pattern Recognition" required>
                         </div>
                         <div class="form-group flex-1">
-                            <label for="confRanking">Ranking</label>
-                            <select id="confRanking">
-                                <option value="Unranked" selected>Unranked</option>
-                                <option value="CORE A*">CORE A*</option>
-                                <option value="CORE A">CORE A</option>
-                                <option value="CORE B">CORE B</option>
-                                <option value="CORE C">CORE C</option>
-                                <option value="Scopus">Scopus</option>
-                            </select>
+                            <label for="confAbbr">Abbreviation</label>
+                            <input type="text" id="confAbbr" placeholder="e.g., CVPR 2027" required>
                         </div>
                     </div>
                     
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="confAbbr">Abbreviation</label>
-                            <input type="text" id="confAbbr" placeholder="e.g., CVPR 2027" required>
-                        </div>
                         <div class="form-group flex-2">
                             <label for="confLocation">Location</label>
                             <input type="text" id="confLocation" placeholder="e.g., Seattle, WA or Online">
@@ -142,66 +131,76 @@
                                 <option value="TBD">TBD</option>
                             </select>
                         </div>
+                        <div class="form-group flex-1">
+                            <label for="confRanking">Ranking</label>
+                            <select id="confRanking">
+                                <option value="Unranked" selected>Unranked</option>
+                                <option value="CORE A*">CORE A*</option>
+                                <option value="CORE A">CORE A</option>
+                                <option value="CORE B">CORE B</option>
+                                <option value="CORE C">CORE C</option>
+                                <option value="Scopus">Scopus</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="confEventStart">Event Start</label>
-                            <input type="datetime-local" id="confEventStart">
+                        <div class="form-group flex-1">
+                            <label for="confEventStart">Event Start Date</label>
+                            <input type="date" id="confEventStart">
                         </div>
-                        <div class="form-group">
-                            <label for="confEventEnd">Event End</label>
-                            <input type="datetime-local" id="confEventEnd">
+                        <div class="form-group flex-1">
+                            <label for="confEventEnd">Event End Date</label>
+                            <input type="date" id="confEventEnd">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group flex-2">
                             <label for="confUrl">Website URL</label>
                             <input type="url" id="confUrl" placeholder="https://...">
                         </div>
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group flex-1">
                             <label for="confAbstractDate">Abstract Deadline (Optional)</label>
                             <input type="datetime-local" id="confAbstractDate">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group flex-1">
                             <label for="confDate">Submission Deadline</label>
                             <input type="datetime-local" id="confDate" required>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confTimezone">Deadline Timezone</label>
-                        <select id="confTimezone" required>
-                            <option value="AoE" selected>AoE (Anywhere on Earth - UTC-12)</option>
-                            <option value="UTC">UTC (Coordinated Universal Time)</option>
-                            <option value="Local">Local Browser Time</option>
-                            <option value="+00:00">UTC+00:00</option>
-                            <option value="+01:00">UTC+01:00</option>
-                            <option value="+02:00">UTC+02:00</option>
-                            <option value="+03:00">UTC+03:00</option>
-                            <option value="+04:00">UTC+04:00</option>
-                            <option value="+05:00">UTC+05:00</option>
-                            <option value="+05:30">UTC+05:30 (IST)</option>
-                            <option value="+06:00">UTC+06:00</option>
-                            <option value="+07:00">UTC+07:00 (ICT)</option>
-                            <option value="+08:00">UTC+08:00 (SGT/CST)</option>
-                            <option value="+09:00">UTC+09:00 (JST)</option>
-                            <option value="+10:00">UTC+10:00</option>
-                            <option value="+11:00">UTC+11:00</option>
-                            <option value="+12:00">UTC+12:00</option>
-                            <option value="-01:00">UTC-01:00</option>
-                            <option value="-02:00">UTC-02:00</option>
-                            <option value="-03:00">UTC-03:00 (BRT)</option>
-                            <option value="-04:00">UTC-04:00 (AST/EDT)</option>
-                            <option value="-05:00">UTC-05:00 (EST/CDT)</option>
-                            <option value="-06:00">UTC-06:00 (CST/MDT)</option>
-                            <option value="-07:00">UTC-07:00 (MST/PDT)</option>
-                            <option value="-08:00">UTC-08:00 (PST)</option>
-                            <option value="-09:00">UTC-09:00</option>
-                            <option value="-10:00">UTC-10:00 (HST)</option>
-                            <option value="-11:00">UTC-11:00</option>
-                        </select>
+                        <div class="form-group flex-1">
+                            <label for="confTimezone">Deadline Timezone</label>
+                            <select id="confTimezone" required>
+                                <option value="AoE" selected>AoE (Anywhere on Earth - UTC-12)</option>
+                                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                <option value="Local">Local Browser Time</option>
+                                <option value="+00:00">UTC+00:00</option>
+                                <option value="+01:00">UTC+01:00</option>
+                                <option value="+02:00">UTC+02:00</option>
+                                <option value="+03:00">UTC+03:00</option>
+                                <option value="+04:00">UTC+04:00</option>
+                                <option value="+05:00">UTC+05:00</option>
+                                <option value="+05:30">UTC+05:30 (IST)</option>
+                                <option value="+06:00">UTC+06:00</option>
+                                <option value="+07:00">UTC+07:00 (ICT)</option>
+                                <option value="+08:00">UTC+08:00 (SGT/CST)</option>
+                                <option value="+09:00">UTC+09:00 (JST)</option>
+                                <option value="+10:00">UTC+10:00</option>
+                                <option value="+11:00">UTC+11:00</option>
+                                <option value="+12:00">UTC+12:00</option>
+                                <option value="-01:00">UTC-01:00</option>
+                                <option value="-02:00">UTC-02:00</option>
+                                <option value="-03:00">UTC-03:00 (BRT)</option>
+                                <option value="-04:00">UTC-04:00 (AST/EDT)</option>
+                                <option value="-05:00">UTC-05:00 (EST/CDT)</option>
+                                <option value="-06:00">UTC-06:00 (CST/MDT)</option>
+                                <option value="-07:00">UTC-07:00 (MST/PDT)</option>
+                                <option value="-08:00">UTC-08:00 (PST)</option>
+                                <option value="-09:00">UTC-09:00</option>
+                                <option value="-10:00">UTC-10:00 (HST)</option>
+                                <option value="-11:00">UTC-11:00</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="modal-actions">
