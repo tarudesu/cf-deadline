@@ -1218,28 +1218,8 @@ function updateAllCountdowns() {
 }
 
 // --- Calendar View Logic ---
-const calendarGrid = document.getElementById('calendarGrid');
-const calendarMonthTitle = document.getElementById('calendarMonthTitle');
-const prevMonthBtn = document.getElementById('prevMonthBtn');
-const nextMonthBtn = document.getElementById('nextMonthBtn');
 const filterDeadlines = document.getElementById('calFilterDeadlines');
 const filterEvents = document.getElementById('calFilterEvents');
-
-let currentCalDate = new Date();
-
-if (prevMonthBtn) {
-    prevMonthBtn.addEventListener('click', () => {
-        currentCalDate.setMonth(currentCalDate.getMonth() - 1);
-        renderCalendar();
-    });
-}
-
-if (nextMonthBtn) {
-    nextMonthBtn.addEventListener('click', () => {
-        currentCalDate.setMonth(currentCalDate.getMonth() + 1);
-        renderCalendar();
-    });
-}
 
 if (filterDeadlines) {
     filterDeadlines.addEventListener('change', renderCalendar);
@@ -1248,121 +1228,29 @@ if (filterEvents) {
     filterEvents.addEventListener('change', renderCalendar);
 }
 
+let fullCalendarInstance = null;
+
 function renderCalendar() {
-    if (!calendarGrid) return;
-    calendarGrid.innerHTML = '';
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
     
-    const year = currentCalDate.getFullYear();
-    const month = currentCalDate.getMonth();
-    
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    if (calendarMonthTitle) calendarMonthTitle.textContent = `${monthNames[month]} ${year}`;
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay(); 
-    
-    for (let i = 0; i < startingDayOfWeek; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'calendar-cell other-month';
-        calendarGrid.appendChild(emptyCell);
-    }
-    
-    const dayEvents = {};
-    for (let i = 1; i <= daysInMonth; i++) {
-        dayEvents[i] = [];
-    }
-    
-    conferences.forEach(conf => {
-        const addEventIfMatches = (dateString, typeStr) => {
-            if (!dateString || dateString.toLowerCase() === 'tbd') return;
-            
-            let dt;
-            if (typeStr === 'event') {
-                const ts = parseEventDate(dateString);
-                if (isNaN(ts)) return;
-                dt = new Date(ts);
-            } else {
-                dt = new Date(dateString);
-            }
-            
-            if (isNaN(dt.getTime())) return;
-            
-            if (dt.getFullYear() === year && dt.getMonth() === month) {
-                const day = dt.getDate();
-                if (dayEvents[day]) {
-                    const isDup = dayEvents[day].some(e => e.conf.id === conf.id && e.type === typeStr);
-                    if (!isDup) {
-                        dayEvents[day].push({ conf, type: typeStr });
-                    }
-                }
-            }
-        };
-
-        const showDeadlines = filterDeadlines ? filterDeadlines.checked : true;
-        const showEvents = filterEvents ? filterEvents.checked : true;
-
-        if (showDeadlines) {
-            addEventIfMatches(conf.deadline, 'deadline');
-            if (conf.abstractDeadline) {
-                addEventIfMatches(conf.abstractDeadline, 'deadline');
-            }
-        }
-        
-        if (showEvents) {
-            if (conf.eventStart) {
-                const st = new Date(conf.eventStart);
-                const en = conf.eventEnd ? new Date(conf.eventEnd) : st;
-                if (!isNaN(st.getTime()) && !isNaN(en.getTime())) {
-                    let cur = new Date(st);
-                    while (cur <= en) {
-                        if (cur.getFullYear() === year && cur.getMonth() === month) {
-                            const day = cur.getDate();
-                            if (dayEvents[day]) {
-                                const isDup = dayEvents[day].some(e => e.conf.id === conf.id && e.type === 'event');
-                                if (!isDup) {
-                                    dayEvents[day].push({ conf, type: 'event' });
-                                }
-                            }
-                        }
-                        cur.setDate(cur.getDate() + 1);
-                    }
-                }
-            } else {
-                addEventIfMatches(conf.eventDate, 'event');
-            }
-        }
-    });
-    
-    const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-    
-    for (let i = 1; i <= daysInMonth; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'calendar-cell';
-        if (isCurrentMonth && today.getDate() === i) {
-            cell.classList.add('today');
-        }
-        
-        const dateNum = document.createElement('div');
-        dateNum.className = 'date-num';
-        dateNum.textContent = i;
-        cell.appendChild(dateNum);
-        
-        dayEvents[i].forEach(ev => {
-            const chip = document.createElement('div');
-            chip.className = `event-chip type-${ev.type}`;
-            chip.textContent = ev.conf.abbr || ev.conf.name;
-            chip.title = `${ev.type === 'deadline' ? 'Deadline' : 'Event'}: ${ev.conf.name}`;
-            
-            chip.addEventListener('click', (e) => {
-                e.stopPropagation();
+    if (!fullCalendarInstance) {
+        fullCalendarInstance = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: 'auto',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listMonth'
+            },
+            eventClick: function(info) {
+                const evType = info.event.extendedProps.type;
+                const confId = info.event.id;
                 
                 let targetTabSelector = '.main-tab[data-tab="all"]';
-                if (ev.type === 'event') {
+                if (evType === 'event') {
                     targetTabSelector = '.main-tab[data-tab="upcoming-events"]';
-                } else if (ev.type === 'deadline') {
+                } else if (evType === 'deadline') {
                     targetTabSelector = '.main-tab[data-tab="upcoming-deadlines"]';
                 }
                 
@@ -1370,7 +1258,7 @@ function renderCalendar() {
                 if (tabBtn) tabBtn.click();
                 
                 setTimeout(() => {
-                    const card = document.querySelector(`.list-item[data-id="${ev.conf.id}"]`);
+                    const card = document.querySelector(`.list-item[data-id="${confId}"]`);
                     if (card) {
                         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         card.style.transition = 'box-shadow 0.3s';
@@ -1378,21 +1266,68 @@ function renderCalendar() {
                         setTimeout(() => card.style.boxShadow = '', 1500);
                     }
                 }, 100);
-            });
-            
-            cell.appendChild(chip);
+            }
         });
-        
-        calendarGrid.appendChild(cell);
+        fullCalendarInstance.render();
     }
     
-    const totalCells = startingDayOfWeek + daysInMonth;
-    const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
-    for (let i = 0; i < remainingCells; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'calendar-cell other-month';
-        calendarGrid.appendChild(emptyCell);
-    }
+    fullCalendarInstance.removeAllEvents();
+    
+    const showDeadlines = document.getElementById('calFilterDeadlines')?.checked ?? true;
+    const showEvents = document.getElementById('calFilterEvents')?.checked ?? true;
+    
+    conferences.forEach(conf => {
+        if (showDeadlines) {
+            if (conf.deadline) {
+                const ts = Date.parse(conf.deadline);
+                if (!isNaN(ts)) {
+                    fullCalendarInstance.addEvent({
+                        id: conf.id,
+                        title: conf.abbr || conf.name,
+                        start: new Date(ts),
+                        classNames: ['fc-custom-deadline'],
+                        extendedProps: { type: 'deadline' }
+                    });
+                }
+            }
+            if (conf.abstractDeadline) {
+                const ts = Date.parse(conf.abstractDeadline);
+                if (!isNaN(ts)) {
+                    fullCalendarInstance.addEvent({
+                        id: conf.id,
+                        title: `(Abs) ${conf.abbr || conf.name}`,
+                        start: new Date(ts),
+                        classNames: ['fc-custom-deadline'],
+                        extendedProps: { type: 'deadline' }
+                    });
+                }
+            }
+        }
+        
+        if (showEvents) {
+            if (conf.eventStart) {
+                fullCalendarInstance.addEvent({
+                    id: conf.id,
+                    title: conf.abbr || conf.name,
+                    start: conf.eventStart,
+                    end: conf.eventEnd ? new Date(new Date(conf.eventEnd).getTime() + 86400000).toISOString().split('T')[0] : null,
+                    classNames: ['fc-custom-event'],
+                    extendedProps: { type: 'event' }
+                });
+            } else if (conf.eventDate) {
+                const ts = parseEventDate(conf.eventDate);
+                if (!isNaN(ts)) {
+                    fullCalendarInstance.addEvent({
+                        id: conf.id,
+                        title: conf.abbr || conf.name,
+                        start: new Date(ts),
+                        classNames: ['fc-custom-event'],
+                        extendedProps: { type: 'event' }
+                    });
+                }
+            }
+        }
+    });
 }
 
 // --- Export Logic ---

@@ -95,16 +95,7 @@
 
             <!-- Calendar View (Hidden by default, shown via Tab) -->
             <div id="calendarView" class="hidden">
-                <div class="calendar-header">
-                    <div class="calendar-nav">
-                        <button id="prevMonthBtn" class="icon-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                        </button>
-                        <h2 id="calendarMonthTitle">Month Year</h2>
-                        <button id="nextMonthBtn" class="icon-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                        </button>
-                    </div>
+                <div class="calendar-filters-container">
                     <div class="calendar-filters">
                         <label>
                             <input type="checkbox" id="calFilterDeadlines" checked> 
@@ -116,13 +107,7 @@
                         </label>
                     </div>
                 </div>
-                
-                <div class="calendar-grid-header">
-                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                </div>
-                <div id="calendarGrid" class="calendar-grid">
-                    <!-- Days populated by JS -->
-                </div>
+                <div id="calendar"></div>
             </div>
         </main>
     </div>
@@ -372,6 +357,7 @@ Output in code snippet</pre>
         </div>
     </div>
 
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script type="module" src="app.js"></script>
 </body>
 </html>
