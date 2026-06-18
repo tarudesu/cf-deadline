@@ -38,6 +38,7 @@
                         <button type="button" class="main-tab" data-tab="upcoming-events">Events</button>
                         <button type="button" class="main-tab" data-tab="past">Past</button>
                         <button type="button" class="main-tab" data-tab="all">All</button>
+                        <button type="button" class="main-tab" data-tab="calendar">Calendar</button>
                     </div>
                 </div>
 
@@ -81,6 +82,32 @@
                     </div>
                     <p>No deadlines tracked</p>
                     <span>Click "New Deadline" to add your first conference.</span>
+                </div>
+            </div>
+
+            <!-- Calendar View (Hidden by default, shown via Tab) -->
+            <div id="calendarView" class="hidden">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button id="prevMonthBtn" class="icon-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <h2 id="calendarMonthTitle">Month Year</h2>
+                        <button id="nextMonthBtn" class="icon-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="calendar-filters">
+                        <label><input type="checkbox" id="calFilterDeadlines" checked> Submission Deadlines</label>
+                        <label><input type="checkbox" id="calFilterEvents" checked> Conference Dates</label>
+                    </div>
+                </div>
+                
+                <div class="calendar-grid-header">
+                    <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
+                <div id="calendarGrid" class="calendar-grid">
+                    <!-- Days populated by JS -->
                 </div>
             </div>
         </main>
@@ -282,48 +309,7 @@ Output in code snippet</pre>
         </div>
     </div>
 
-    <!-- Calendar Modal -->
-    <div id="calendarModal" class="modal hidden">
-        <div class="calendar-modal-content">
-            <div class="calendar-header">
-                <div class="calendar-nav">
-                    <button id="prevMonthBtn" class="icon-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                    <h2 id="calendarMonthTitle">Month Year</h2>
-                    <button id="nextMonthBtn" class="icon-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
-                </div>
-                <div class="calendar-filters">
-                    <label><input type="checkbox" id="calFilterDeadlines" checked> Submission Deadlines</label>
-                    <label><input type="checkbox" id="calFilterEvents" checked> Conference Dates</label>
-                </div>
-                <button id="closeCalendarBtn" class="icon-btn close-modal">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            
-            <div class="calendar-grid-header">
-                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-            <div id="calendarGrid" class="calendar-grid">
-                <!-- Days populated by JS -->
-            </div>
-        </div>
-    </div>
-
     <div class="floating-controls-wrapper">
-        <button id="calendarBtn" class="floating-btn secondary-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Calendar
-        </button>
-
         <div id="adminControls" class="floating-admin-controls hidden">
             <button id="addConferenceBtn" class="primary-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

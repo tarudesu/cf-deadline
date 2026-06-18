@@ -530,12 +530,31 @@ rankFilter.addEventListener('change', renderConferences);
 const showOldCheck = document.getElementById('showOldCheck');
 if (showOldCheck) showOldCheck.addEventListener('change', renderConferences);
 
+const conferencesListEl = document.getElementById('conferencesList');
+const calendarViewEl = document.getElementById('calendarView');
+const filtersBarEl = document.querySelector('.filters-bar');
+
 mainTabs.forEach(tab => {
     tab.addEventListener('click', () => {
         mainTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         currentTab = tab.dataset.tab;
-        renderConferences();
+        
+        if (currentTab === 'calendar') {
+            conferencesListEl.classList.add('hidden');
+            filtersBarEl.classList.add('hidden');
+            calendarViewEl.classList.remove('hidden');
+            
+            // Re-render calendar to ensure it's up to date
+            if (typeof renderCalendar === 'function') {
+                renderCalendar();
+            }
+        } else {
+            calendarViewEl.classList.add('hidden');
+            conferencesListEl.classList.remove('hidden');
+            filtersBarEl.classList.remove('hidden');
+            renderConferences();
+        }
     });
 });
 
@@ -984,9 +1003,6 @@ function updateAllCountdowns() {
 }
 
 // --- Calendar View Logic ---
-const calendarBtn = document.getElementById('calendarBtn');
-const calendarModal = document.getElementById('calendarModal');
-const closeCalendarBtn = document.getElementById('closeCalendarBtn');
 const calendarGrid = document.getElementById('calendarGrid');
 const calendarMonthTitle = document.getElementById('calendarMonthTitle');
 const prevMonthBtn = document.getElementById('prevMonthBtn');
@@ -995,20 +1011,6 @@ const filterDeadlines = document.getElementById('calFilterDeadlines');
 const filterEvents = document.getElementById('calFilterEvents');
 
 let currentCalDate = new Date();
-
-if (calendarBtn) {
-    calendarBtn.addEventListener('click', () => {
-        currentCalDate = new Date(); 
-        calendarModal.classList.remove('hidden');
-        renderCalendar();
-    });
-}
-
-if (closeCalendarBtn) {
-    closeCalendarBtn.addEventListener('click', () => {
-        calendarModal.classList.add('hidden');
-    });
-}
 
 if (prevMonthBtn) {
     prevMonthBtn.addEventListener('click', () => {
@@ -1141,15 +1143,16 @@ function renderCalendar() {
             
             chip.addEventListener('click', (e) => {
                 e.stopPropagation();
-                calendarModal.classList.add('hidden');
                 
-                if (ev.type === 'event' && currentTab !== 'upcoming-events') {
-                    const eventTab = document.querySelector('.main-tab[data-tab="upcoming-events"]');
-                    if (eventTab) eventTab.click();
-                } else if (ev.type === 'deadline' && currentTab === 'upcoming-events') {
-                    const deadTab = document.querySelector('.main-tab[data-tab="upcoming-deadlines"]');
-                    if (deadTab) deadTab.click();
+                let targetTabSelector = '.main-tab[data-tab="all"]';
+                if (ev.type === 'event') {
+                    targetTabSelector = '.main-tab[data-tab="upcoming-events"]';
+                } else if (ev.type === 'deadline') {
+                    targetTabSelector = '.main-tab[data-tab="upcoming-deadlines"]';
                 }
+                
+                const tabBtn = document.querySelector(targetTabSelector);
+                if (tabBtn) tabBtn.click();
                 
                 setTimeout(() => {
                     const card = document.querySelector(`.list-item[data-id="${ev.conf.id}"]`);
