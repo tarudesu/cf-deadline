@@ -1323,3 +1323,27 @@ select:focus {
         padding: 1.5rem;
     }
 }
+
+/* Floating AoE Clock */
+.floating-clock-wrapper {
+    position: fixed;
+    bottom: 2rem;
+    left: 4rem;
+    z-index: 100;
+}
+
+.floating-clock {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: var(--radius-lg);
+    padding: 0.8rem 1.2rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}

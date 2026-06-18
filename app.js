@@ -1191,3 +1191,17 @@ if (exportDataBtn) {
         URL.revokeObjectURL(url);
     });
 }
+
+// --- AoE Clock Logic ---
+const aoeClockDisplay = document.getElementById('aoeClockDisplay');
+if (aoeClockDisplay) {
+    setInterval(() => {
+        const now = new Date();
+        const aoeTime = new Date(now.getTime() - (12 * 60 * 60 * 1000));
+        const hh = String(aoeTime.getUTCHours()).padStart(2, '0');
+        const mm = String(aoeTime.getUTCMinutes()).padStart(2, '0');
+        const ss = String(aoeTime.getUTCSeconds()).padStart(2, '0');
+        
+        aoeClockDisplay.textContent = `AoE: ${hh}:${mm}:${ss}`;
+    }, 1000);
+}
