@@ -48,6 +48,16 @@ const jsonInput = document.getElementById('jsonInput');
 const cancelJsonBtn = document.getElementById('cancelJsonBtn');
 const importJsonBtn = document.getElementById('importJsonBtn');
 
+document.querySelectorAll('[data-clear-target]').forEach((clearButton) => {
+    clearButton.addEventListener('click', () => {
+        const target = document.getElementById(clearButton.dataset.clearTarget);
+        if (!target) return;
+        target.value = '';
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+        target.focus();
+    });
+});
+
 // Auth Elements
 const adminControls = document.getElementById('adminControls');
 const logoutBtn = document.getElementById('logoutBtn');
@@ -125,15 +135,6 @@ if (urlParams.has('login') && urlParams.get('login') === 'true') {
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const githubUsername = user.reloadUserInfo?.screenName || user.displayName || "";
-        const email = user.email || "";
-        const uid = user.uid || "";
-
-        console.log("Logged in user details:", {
-            screenName: user.reloadUserInfo?.screenName,
-            displayName: user.displayName,
-            email: email,
-            uid: uid
-        });
         
         // Enforce the same stable GitHub identity used by firestore.rules.
         const githubProvider = user.providerData.find(providerData => providerData.providerId === 'github.com');
@@ -161,15 +162,6 @@ onAuthStateChanged(auth, async (user) => {
         authStatusMessage.classList.add('hidden');
         authStatusMessage.textContent = '';
         document.body.style.overflow = '';
-
-        // Log the auth token so we can debug Firestore rules
-        try {
-            const idTokenResult = await user.getIdTokenResult();
-            console.log('Firebase Auth Token Claims:', JSON.stringify(idTokenResult.claims, null, 2));
-            console.log('Auth UID:', user.uid);
-        } catch (tokenErr) {
-            console.warn('Could not fetch ID token for debugging:', tokenErr);
-        }
 
         isAdmin = true;
         adminControls.classList.remove('hidden');
@@ -271,8 +263,8 @@ if (importJsonBtn) {
                     name: item.name || '',
                     abbr: item.abbr || '',
                     location: item.location || '',
-                    mode: item.mode || 'In-person',
-                    ranking: item.ranking || 'Unranked',
+                    mode: item.mode === '' ? '' : (item.mode || 'In-person'),
+                    ranking: item.ranking === '' ? '' : (item.ranking || 'Unranked'),
                     date: item.date || item.eventDate || '',
                     date_end: item.date_end || item.eventEnd || item.date || item.eventDate || '',
                     url: item.url || '',
@@ -443,20 +435,23 @@ parseMarkdownBtn.addEventListener('click', () => {
     }
     
     const data = parseMarkdown(text);
+    const hasField = (field) => Object.prototype.hasOwnProperty.call(data, field);
     
     if (data.name) document.getElementById('confName').value = data.name;
     if (data.abbr) document.getElementById('confAbbr').value = data.abbr;
-    if (data.location) document.getElementById('confLocation').value = data.location;
-    if (data.mode) {
+    if (hasField('location')) document.getElementById('confLocation').value = data.location || '';
+    if (hasField('mode') && data.mode) {
         const m = data.mode.toLowerCase();
         if (m.includes('in-person') || m.includes('in person')) document.getElementById('confMode').value = 'In-person';
         else if (m.includes('hybrid')) document.getElementById('confMode').value = 'Hybrid';
         else if (m.includes('virtual') || m.includes('online')) document.getElementById('confMode').value = 'Virtual';
         else document.getElementById('confMode').value = 'TBD';
+    } else if (hasField('mode')) {
+        document.getElementById('confMode').value = '';
     } else {
         document.getElementById('confMode').value = 'In-person';
     }
-    if (data.eventDate) {
+    if (hasField('eventDate') && data.eventDate) {
         let start = '', end = '';
         if (data.eventDate.includes('to')) {
             const parts = data.eventDate.split('to');
@@ -470,15 +465,19 @@ parseMarkdownBtn.addEventListener('click', () => {
         const endEl = document.getElementById('confEventEnd');
         if (startEl && start) startEl.value = formatDateTimeForInput(start);
         if (endEl && end) endEl.value = formatDateTimeForInput(end);
+    } else if (hasField('eventDate')) {
+        document.getElementById('confEventStart').value = '';
+        document.getElementById('confEventEnd').value = '';
     }
-    if (data.url) document.getElementById('confUrl').value = data.url;
+    if (hasField('url')) document.getElementById('confUrl').value = data.url || '';
     
-    if (data.ranking) {
+    if (hasField('ranking') && data.ranking) {
         const r = data.ranking.trim().toUpperCase();
         const select = document.getElementById('confRanking');
         let matched = false;
         for (let i = 0; i < select.options.length; i++) {
-            if (r.includes(select.options[i].value.toUpperCase())) {
+            const optionValue = select.options[i].value;
+            if (optionValue && r.includes(optionValue.toUpperCase())) {
                 select.selectedIndex = i;
                 matched = true;
                 break;
@@ -486,6 +485,8 @@ parseMarkdownBtn.addEventListener('click', () => {
         }
         if (!matched && r.includes('SCOPUS')) select.value = 'Scopus';
         else if (!matched) select.value = 'Unranked';
+    } else if (hasField('ranking')) {
+        document.getElementById('confRanking').value = '';
     } else {
         document.getElementById('confRanking').value = 'Unranked';
     }
@@ -713,7 +714,7 @@ async function editConference(id) {
     document.getElementById('confRanking').value = conf.ranking || '';
     document.getElementById('confAbbr').value = conf.abbr || '';
     document.getElementById('confLocation').value = conf.location || '';
-    document.getElementById('confMode').value = conf.mode || 'In-person';
+    document.getElementById('confMode').value = conf.mode === '' ? '' : (conf.mode || 'In-person');
     document.getElementById('confEventStart').value = formatDateTimeForInput(conf.eventStart);
     document.getElementById('confEventEnd').value = formatDateTimeForInput(conf.eventEnd);
     document.getElementById('confUrl').value = conf.url || '';
@@ -987,8 +988,8 @@ function renderConferences() {
         `;
 
         const safeLocation = escapeHTML(conf.location);
-        const safeMode = escapeHTML(conf.mode || 'In-person');
-        const modeText = safeLocation ? ` &bull; Mode: <strong>${safeMode}</strong>` : `Mode: <strong>${safeMode}</strong>`;
+        const safeMode = escapeHTML(conf.mode);
+        const modeText = safeLocation && safeMode ? ` &bull; Mode: <strong>${safeMode}</strong>` : (safeMode ? `Mode: <strong>${safeMode}</strong>` : '');
         const hasLocOrMode = safeLocation || safeMode;
         
         const locationHTML = hasLocOrMode ? `

@@ -137,7 +137,10 @@
                     <div class="form-row">
                         <div class="form-group flex-2">
                             <label for="confLocation">Location</label>
-                            <input type="text" id="confLocation" placeholder="e.g., Seattle, WA or Online">
+                            <div class="field-with-clear">
+                                <input type="text" id="confLocation" placeholder="e.g., Seattle, WA or Online">
+                                <button type="button" class="field-clear" data-clear-target="confLocation" aria-label="Clear location">Clear</button>
+                            </div>
                         </div>
                         <div class="form-group flex-1">
                             <label for="confMode">Mode</label>
@@ -146,6 +149,7 @@
                                 <option value="Hybrid">Hybrid</option>
                                 <option value="Virtual">Virtual</option>
                                 <option value="TBD">TBD</option>
+                                <option value="">None / Not specified</option>
                             </select>
                         </div>
                         <div class="form-group flex-1">
@@ -157,6 +161,7 @@
                                 <option value="CORE B">CORE B</option>
                                 <option value="CORE C">CORE C</option>
                                 <option value="Scopus">Scopus</option>
+                                <option value="">None / Not specified</option>
                             </select>
                         </div>
                     </div>
@@ -164,18 +169,27 @@
                     <div class="form-row">
                         <div class="form-group flex-1">
                             <label for="confEventStart">Event Start</label>
-                            <input type="date" id="confEventStart">
+                            <div class="field-with-clear">
+                                <input type="date" id="confEventStart">
+                                <button type="button" class="field-clear" data-clear-target="confEventStart" aria-label="Clear event start">Clear</button>
+                            </div>
                         </div>
                         <div class="form-group flex-1">
                             <label for="confEventEnd">Event End</label>
-                            <input type="date" id="confEventEnd">
+                            <div class="field-with-clear">
+                                <input type="date" id="confEventEnd">
+                                <button type="button" class="field-clear" data-clear-target="confEventEnd" aria-label="Clear event end">Clear</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group flex-1">
                             <label for="confAbstractDate">Abstract Deadline (Optional)</label>
-                            <input type="date" id="confAbstractDate">
+                            <div class="field-with-clear">
+                                <input type="date" id="confAbstractDate">
+                                <button type="button" class="field-clear" data-clear-target="confAbstractDate" aria-label="Clear abstract deadline">Clear</button>
+                            </div>
                         </div>
                         <div class="form-group flex-1">
                             <label for="confDate">Submission Deadline</label>
@@ -219,7 +233,10 @@
                         </div>
                         <div class="form-group flex-2">
                             <label for="confUrl">Website URL</label>
-                            <input type="url" id="confUrl" placeholder="https://...">
+                            <div class="field-with-clear">
+                                <input type="url" id="confUrl" placeholder="https://...">
+                                <button type="button" class="field-clear" data-clear-target="confUrl" aria-label="Clear website URL">Clear</button>
+                            </div>
                         </div>
                     </div>
 
