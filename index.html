@@ -24,81 +24,129 @@
 <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="app-container">
-        <!-- Main Content Area -->
-        <main class="content" id="main-content">
-            <div class="sticky-header">
-                <div class="top-nav">
-                    <div class="brand">
-                        <div class="logo" aria-hidden="true"></div>
-                        <div class="brand-copy">
-                            <span class="brand-eyebrow">Research tool</span>
-                            <h1>cf-deadline</h1>
-                        </div>
-                        <span class="count-badge" id="totalCount" aria-label="Visible conference count">0</span>
-                    </div>
-                    
-                    <div class="main-tabs" role="tablist" aria-label="Deadline views">
-                        <button type="button" role="tab" aria-selected="true" class="main-tab active" data-tab="upcoming-deadlines">Deadlines</button>
-                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="upcoming-events">Events</button>
-                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="past">Past</button>
-                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="all">All</button>
-                    </div>
+        <aside class="workspace-sidebar" aria-label="Workspace navigation">
+            <div class="brand">
+                <div class="logo" aria-hidden="true">
+                    <span></span>
+                    <span></span>
                 </div>
+                <div class="brand-copy">
+                    <span class="brand-eyebrow">Research workspace</span>
+                    <span class="brand-title">cf-deadline</span>
+                </div>
+            </div>
 
-            <div class="filters-bar" role="search" aria-label="Filter conferences">
-                <div class="search-box">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <div class="sidebar-section-label">Browse</div>
+            <div class="main-tabs" role="tablist" aria-label="Deadline views">
+                <button type="button" role="tab" aria-selected="true" class="main-tab active" data-tab="upcoming-deadlines">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="3"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>
                     </svg>
-                    <label class="sr-only" for="searchInput">Search conferences</label>
-                    <input type="search" id="searchInput" placeholder="Search conferences..." autocomplete="off">
+                    <span>Deadlines</span>
+                </button>
+                <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="upcoming-events">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"></path><path d="M12 6v6l4 2"></path>
+                    </svg>
+                    <span>Events</span>
+                </button>
+                <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="past">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path>
+                    </svg>
+                    <span>Past</span>
+                </button>
+                <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="all">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                    </svg>
+                    <span>All</span>
+                </button>
+            </div>
+
+            <div class="sidebar-status">
+                <div class="sidebar-stat">
+                    <span>Visible conferences</span>
+                    <strong class="count-badge" id="totalCount" aria-label="Visible conference count">0</strong>
                 </div>
-                <div class="filter-group" style="display: flex; align-items: center; gap: 1rem;">
-                    <button id="addCalendarBtn" class="secondary-btn hidden" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; height: auto; display: inline-flex; align-items: center; white-space: nowrap;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.3rem;">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-                        </svg>Add to Calendar
-                    </button>
-                    <button id="exportDataBtn" class="secondary-btn hidden" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; height: auto; display: inline-flex; align-items: center; white-space: nowrap;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.3rem;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>Export
-                    </button>
-                    <label id="showOldToggle" class="hidden" style="display: none; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer; color: var(--text-secondary); background: rgba(0,0,0,0.03); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm);">
-                        <input type="checkbox" id="showOldCheck">
-                        Show >6mo old
-                    </label>
-                    <label class="sr-only" for="rankFilter">Filter by ranking</label>
-                    <select id="rankFilter" aria-label="Filter by ranking">
-                        <option value="All">All Rankings</option>
-                    </select>
+                <div class="floating-clock-wrapper">
+                    <div class="floating-clock">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path>
+                        </svg>
+                        <span id="aoeClockDisplay">AoE: --:--:--</span>
+                    </div>
                 </div>
+                <p>Times use Anywhere on Earth unless a conference specifies another zone.</p>
+            </div>
+        </aside>
+
+        <main class="content" id="main-content">
+            <header class="page-header">
+                <div>
+                    <span class="page-eyebrow">Academic planning</span>
+                    <h1>Conference deadlines</h1>
+                    <p>Submission windows, abstract dates, and event schedules in one focused view.</p>
+                </div>
+                <div class="floating-controls-wrapper">
+                    <div id="adminControls" class="floating-admin-controls hidden">
+                        <button id="addConferenceBtn" class="primary-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            New Deadline
+                        </button>
+                        <button id="logoutBtn" class="secondary-btn logout-btn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="sticky-header">
+                <div class="filters-bar" role="search" aria-label="Filter conferences">
+                    <div class="search-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <label class="sr-only" for="searchInput">Search conferences</label>
+                        <input type="search" id="searchInput" placeholder="Search by conference or location" autocomplete="off">
+                    </div>
+                    <div class="filter-group">
+                        <button id="addCalendarBtn" class="secondary-btn hidden">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>
+                            </svg>
+                            Add to Calendar
+                        </button>
+                        <button id="exportDataBtn" class="secondary-btn hidden">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5M12 15V3"></path>
+                            </svg>
+                            Export
+                        </button>
+                        <label id="showOldToggle" class="old-toggle hidden">
+                            <input type="checkbox" id="showOldCheck">
+                            Show &gt;6mo old
+                        </label>
+                        <label class="sr-only" for="rankFilter">Filter by ranking</label>
+                        <select id="rankFilter" aria-label="Filter by ranking">
+                            <option value="All">All rankings</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div id="conferencesList" class="conferences-list">
-                <!-- Items injected here -->
                 <div id="emptyState" class="empty-state">
                     <div class="empty-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>
                         </svg>
                     </div>
                     <p>No deadlines tracked</p>
-                    <span>Click "New Deadline" to add your first conference.</span>
+                    <span>Use “New Deadline” to add your first conference.</span>
                 </div>
             </div>
-
-
         </main>
     </div>
 
@@ -339,31 +387,6 @@ Output in code snippet.</pre>
             </div>
         </div>
     </div>
-
-    <div class="floating-controls-wrapper">
-        <div id="adminControls" class="floating-admin-controls hidden">
-            <button id="addConferenceBtn" class="primary-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                New Deadline
-            </button>
-            <button id="logoutBtn" class="secondary-btn logout-btn">
-                Logout
-            </button>
-        </div>
-    </div>
-
-    <div class="floating-clock-wrapper">
-        <div class="floating-clock">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            <span id="aoeClockDisplay">AoE: --:--:--</span>
-        </div>
-    </div>
-
 
     <script type="module" src="app.js"></script>
 </body>
