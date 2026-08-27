@@ -49,6 +49,14 @@ In `app.js`, locate and update the following constant to your own GitHub usernam
 const ADMIN_GITHUB_USERNAME = 'your-github-username';
 ```
 
+Firestore rules are separate from GitHub Pages hosting. After changing `firestore.rules`, deploy them to the Firebase project:
+
+```bash
+firebase deploy --only firestore:rules --project cf-deadline
+```
+
+The current rules allow the `tarudesu` GitHub account (ID `76896906`) and users with the server-issued `admin: true` custom claim to create, update, and delete conference entries.
+
 ## Security
 
 The application sanitizes all user-provided data before injecting it into the DOM to mitigate Cross-Site Scripting (XSS) vulnerabilities. Firestore rules strictly validate that only authenticated administrators can mutate the database, while read access is open to the public.

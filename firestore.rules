@@ -1,20 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+        (
+          // Keep support for a server-issued custom admin claim.
+          request.auth.token.admin == true ||
+          // GitHub account ID for github.com/tarudesu.
+          (
+            request.auth.token.firebase.sign_in_provider == 'github.com' &&
+            request.auth.token.firebase.identities['github.com'].hasAny([
+              '76896906',
+              'github.com:76896906'
+            ])
+          )
+        );
+    }
+
     match /conferences/{conference} {
       // Allow anyone to read the conferences
       allow read: if true;
       
-      // Allow create/update/delete only if the user is authenticated 
-      // AND their token contains the correct admin claim or github username
-      allow create, update, delete: if request.auth != null && 
-        (
-          // If using a custom claim:
-          request.auth.token.admin == true || 
-          // Or matching the GitHub username/email directly from the token:
-          request.auth.token.name == 'tarudesu' ||
-          request.auth.token.email == 'tarudesu@users.noreply.github.com'
-        );
+      // Firebase's GitHub `name` claim is the profile display name, not the
+      // unique GitHub username. Use the provider identity ID instead.
+      allow create, update, delete: if isAdmin();
     }
   }
 }

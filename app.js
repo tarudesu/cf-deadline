@@ -135,12 +135,11 @@ onAuthStateChanged(auth, async (user) => {
             uid: uid
         });
         
-        // Enforce admin username matching (checking both screenName and displayName case-insensitively)
-        const usernameClean = githubUsername.trim().toLowerCase();
-        const displayNameClean = user.displayName ? user.displayName.replace(/\s+/g, '').toLowerCase() : '';
-        const adminClean = ADMIN_GITHUB_USERNAME.toLowerCase();
+        // Enforce the same stable GitHub identity used by firestore.rules.
+        const githubProvider = user.providerData.find(providerData => providerData.providerId === 'github.com');
+        const githubIdentity = githubProvider?.uid?.replace(/^github\.com:/, '') || '';
 
-        const isAuthorized = usernameClean === adminClean || displayNameClean === adminClean;
+        const isAuthorized = githubIdentity === '76896906';
 
         if (!isAuthorized) {
             const errorMsg = `Access Denied: Logged in as "${githubUsername || user.displayName}". Expected admin "${ADMIN_GITHUB_USERNAME}".`;
@@ -633,7 +632,13 @@ conferenceForm.addEventListener('submit', async (e) => {
         closeModal();
     } catch (e) {
         console.error("Error adding document: ", e);
-        alert("Failed to save conference. Are Firestore rules configured correctly?");
+        const errorCode = e.code || 'unknown-error';
+        const errorMessage = e.message || 'No additional error details were provided.';
+        if (errorCode === 'permission-denied') {
+            alert('Firestore denied this save. Deploy the updated firestore.rules file and sign in again with the tarudesu GitHub account.\n\n' + errorMessage);
+        } else {
+            alert('Failed to save conference (' + errorCode + ').\n\n' + errorMessage);
+        }
     }
 });
 
