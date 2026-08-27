@@ -758,7 +758,9 @@ const filtersBarEl = document.querySelector('.filters-bar');
 mainTabs.forEach(tab => {
     tab.addEventListener('click', () => {
         mainTabs.forEach(t => t.classList.remove('active'));
+        mainTabs.forEach(t => t.setAttribute('aria-selected', 'false'));
         tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
         currentTab = tab.dataset.tab;
         
         conferencesListEl.classList.remove('hidden');
@@ -1025,9 +1027,10 @@ function renderConferences() {
             item.dataset.trueDeadlineUtc = getUtcTimestamp(conf.deadline, conf.timezone || 'AoE');
         }
 
+        const safeAbbr = escapeHTML(conf.abbr);
         const safeUrl = escapeHTML(conf.url);
         const urlHTML = safeUrl ? `
-            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website">
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Visit Website" aria-label="Visit ${safeAbbr || 'conference'} website">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                     <polyline points="15 3 21 3 21 9"></polyline>
@@ -1040,7 +1043,7 @@ function renderConferences() {
         const editBtnClass = isAdmin ? "icon-btn edit" : "icon-btn edit hidden";
 
         const editHTML = `
-            <button class="${editBtnClass}" onclick="editConference('${conf.id}')" title="Edit">
+            <button class="${editBtnClass}" onclick="editConference('${conf.id}')" title="Edit" aria-label="Edit ${safeAbbr || 'conference'}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -1048,7 +1051,6 @@ function renderConferences() {
             </button>
         `;
 
-        const safeAbbr = escapeHTML(conf.abbr);
         const safeName = escapeHTML(conf.name);
         
         item.innerHTML = `
@@ -1093,7 +1095,7 @@ function renderConferences() {
                 <div class="item-actions">
                     ${urlHTML}
                     ${editHTML}
-                    <button class="${deleteBtnClass}" onclick="deleteConference('${conf.id}')" title="Remove">
+                    <button class="${deleteBtnClass}" onclick="deleteConference('${conf.id}')" title="Remove" aria-label="Remove ${safeAbbr || 'conference'}">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1260,7 +1262,7 @@ if (exportDataBtn) {
 // --- AoE Clock Logic ---
 const aoeClockDisplay = document.getElementById('aoeClockDisplay');
 if (aoeClockDisplay) {
-    setInterval(() => {
+    const updateAoeClock = () => {
         const now = new Date();
         const aoeTime = new Date(now.getTime() - (12 * 60 * 60 * 1000));
         const yyyy = aoeTime.getUTCFullYear();
@@ -1276,7 +1278,9 @@ if (aoeClockDisplay) {
                 <span style="font-size: 1.15rem; color: var(--accent-primary); font-weight: 700; line-height: 1;">${hh}:${mm}:${ss}</span>
             </div>
         `;
-    }, 1000);
+    };
+    updateAoeClock();
+    setInterval(updateAoeClock, 1000);
 }
 
 // --- Sync to Google Calendar (ICS Download) ---
@@ -1357,5 +1361,3 @@ if (addCalendarBtn) {
         URL.revokeObjectURL(url);
     });
 }
-
-

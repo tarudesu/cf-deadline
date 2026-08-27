@@ -3,51 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Conference Deadlines</title>
-    <meta name="description" content="A minimalist, high-end dashboard to track conference deadlines.">
+    <title>cf-deadline · Conference deadlines</title>
+    <meta name="description" content="A focused tracker for academic conference deadlines and events.">
     <!-- Open Graph / Social Sharing Meta Tags -->
-    <meta property="og:title" content="Track Conference Deadlines">
-    <meta property="og:description" content="A minimalist, high-end dashboard to track conference deadlines.">
+    <meta property="og:title" content="cf-deadline · Conference deadlines">
+    <meta property="og:description" content="A focused tracker for academic conference deadlines and events.">
     <meta property="og:image" content="https://tarudesu.github.io/cf-deadline/og-image.jpg">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Track Conference Deadlines">
-    <meta name="twitter:description" content="A minimalist, high-end dashboard to track conference deadlines.">
+    <meta name="twitter:title" content="cf-deadline · Conference deadlines">
+    <meta name="twitter:description" content="A focused tracker for academic conference deadlines and events.">
     <meta name="twitter:image" content="https://tarudesu.github.io/cf-deadline/og-image.jpg">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="app-container">
         <!-- Main Content Area -->
-        <main class="content">
+        <main class="content" id="main-content">
             <div class="sticky-header">
                 <div class="top-nav">
                     <div class="brand">
-                        <div class="logo"></div>
-                        <h1>cf-deadline</h1>
-                        <span class="count-badge" id="totalCount" style="margin-left: 0.5rem; font-size: 0.75rem; padding: 0.15rem 0.5rem;">0</span>
+                        <div class="logo" aria-hidden="true"></div>
+                        <div class="brand-copy">
+                            <span class="brand-eyebrow">Research tool</span>
+                            <h1>cf-deadline</h1>
+                        </div>
+                        <span class="count-badge" id="totalCount" aria-label="Visible conference count">0</span>
                     </div>
                     
-                    <div class="main-tabs">
-                        <button type="button" class="main-tab active" data-tab="upcoming-deadlines">Deadlines</button>
-                        <button type="button" class="main-tab" data-tab="upcoming-events">Events</button>
-                        <button type="button" class="main-tab" data-tab="past">Past</button>
-                        <button type="button" class="main-tab" data-tab="all">All</button>
+                    <div class="main-tabs" role="tablist" aria-label="Deadline views">
+                        <button type="button" role="tab" aria-selected="true" class="main-tab active" data-tab="upcoming-deadlines">Deadlines</button>
+                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="upcoming-events">Events</button>
+                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="past">Past</button>
+                        <button type="button" role="tab" aria-selected="false" class="main-tab" data-tab="all">All</button>
                     </div>
                 </div>
 
-            <div class="filters-bar">
+            <div class="filters-bar" role="search" aria-label="Filter conferences">
                 <div class="search-box">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="Search conferences...">
+                    <label class="sr-only" for="searchInput">Search conferences</label>
+                    <input type="search" id="searchInput" placeholder="Search conferences..." autocomplete="off">
                 </div>
                 <div class="filter-group" style="display: flex; align-items: center; gap: 1rem;">
                     <button id="addCalendarBtn" class="secondary-btn hidden" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; height: auto; display: inline-flex; align-items: center; white-space: nowrap;">
@@ -69,7 +74,8 @@
                         <input type="checkbox" id="showOldCheck">
                         Show >6mo old
                     </label>
-                    <select id="rankFilter">
+                    <label class="sr-only" for="rankFilter">Filter by ranking</label>
+                    <select id="rankFilter" aria-label="Filter by ranking">
                         <option value="All">All Rankings</option>
                     </select>
                 </div>
@@ -101,7 +107,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2>New Deadline</h2>
-                <button id="closeModalBtn" class="icon-btn">
+                <button id="closeModalBtn" class="icon-btn" type="button" aria-label="Close deadline editor" title="Close">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 6L6 18M6 6L18 18"></path>
                     </svg>
@@ -242,7 +248,7 @@
 - Ranking: (choose one: CORE A*, CORE A, CORE B, CORE C, Scopus, Unranked)
 
 Output in code snippet.</pre>
-                        <button type="button" id="copyPromptBtn" class="icon-btn-text">
+                        <button type="button" id="copyPromptBtn" class="icon-btn-text" aria-label="Copy import prompt">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -292,7 +298,7 @@ Output in code snippet.</pre>
         <div class="modal auth-modal">
             <div class="modal-header">
                 <h2>Admin Portal</h2>
-                <button id="closeAuthModalBtn" class="icon-btn">
+                <button id="closeAuthModalBtn" class="icon-btn" type="button" aria-label="Close admin login" title="Close">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 6L6 18M6 6L18 18"></path>
                     </svg>
